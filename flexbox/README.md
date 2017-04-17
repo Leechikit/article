@@ -2,14 +2,14 @@
 
 ## Flexbox兼容性
 
-![Alt text](./flexbox-pc.png)
-![Alt text](./flexbox-wap.png)
+![Alt text](./images/flexbox-pc.png)
+![Alt text](./images/flexbox-wap.png)
 
 ## Flexbox新旧属性
 
 Flexbox的新属性提供了很多旧版本没有的功能，但是目前Android4.x和UC仍有一定市场占有率需要兼容，因此目前只使用新旧属性都有的功能。
 能实现相同功能的Flexbox新旧属性如下表：
-![Alt text](./flexbox-attribute.png)
+![Alt text](./images/flexbox-attribute.png)
 
 但想象是美好的，现实是残酷的，新旧属性里有那么几个顽固分子并不能乖乖的表现的一样，总有那么一点不同。
 下面我们来看看是哪些新旧属性有不同：
