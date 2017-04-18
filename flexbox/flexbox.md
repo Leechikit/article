@@ -65,7 +65,7 @@ Flexbox的新属性提供了很多旧版本没有的功能，但是目前Android
 * `flex-basis`：伸缩基础，在进行计算剩余空间或超出空间前，给伸缩项目重新设置一个宽度，然后再计算。
 
 我们先来看看如何计算计算拉伸后的伸缩项目宽度，先简单明了的给个公式，再通过栗子来验证。
-> 伸缩项目扩展宽度 = (项目容器宽度 - 项目宽度或项目设置的flex-basis总和) * 对应的flex-grow比例
+> 伸缩项目扩展宽度 = (项目容器宽度 - 项目宽度或项目设置的`flex-basis`总和) * 对应的`flex-grow`比例
 > 拉伸后伸缩项目宽度 = 原伸缩项目宽度 + 扩展宽度
 
 ```
@@ -99,7 +99,7 @@ Flexbox的新属性提供了很多旧版本没有的功能，但是目前Android
 ```
 <img src="./images/flex-grow.png" alt="" width="320px">
 
-我们来计算一下上面栗子中第一个伸缩项目的拉伸后的宽度
+我们来计算一下上面栗子中第一个伸缩项目拉伸后的宽度
 
 对应着公式一步步计算：
 ```
@@ -115,8 +115,96 @@ extendWidth = ( 550 - 400 ) * 1/15 = 10
 itemWidth = 60 + 10 = 70
 ```
 计算后得到第一个伸缩项目拉伸后的宽度是70px，我们通过chrome上的盒子模型来看看是否正确
+
 <img src="./images/flex-grow-box.png" alt="" width="266px">
+
 chrome计算的结果和我们计算的结果是一致的。
+
+> **根据拉伸的计算公式是不是很容易就能推演出压缩的计算公式呢？**
+
+伸缩项目缩小宽度 = (项目宽度或项目设置的`flex-basis`总和 - 项目容器宽度) * 对应的`flex-shrink`比例
+压缩后伸缩项目宽度 = 原伸缩项目宽度 - 缩小宽度
+
+继续用个栗子来验证公式是否正确
+
+```
+.flexbox-wrap{
+    width:250px;
+    display: flex;
+}
+.flexbox-item{
+    &:nth-child(1){
+        width:60px;
+    }
+    &:nth-child(2){
+        width:70px;
+    }
+    &:nth-child(3){
+        flex-basis:80px;
+    }
+    &:nth-child(4){
+        flex-basis:90px;
+    }
+    &:nth-child(5){
+         flex-basis:100px;
+    }
+}
+@for $i from 1 through 5 {
+    .flexbox-item:nth-child(#{$i}){
+        flex-shrink: $i;
+        background-color: rgba(35 * (6-$i), 20 * $i, 35 * $i,1);
+    }
+}
+```
+
+<img src="./images/flex-shrink.png" alt="" width="320px">
+
+我们来计算一下上面栗子中第一个伸缩项目压缩后的宽度
+
+对应着公式一步步计算：
+```
+// 项目容器宽度
+container = 250
+// 项目宽度或项目设置的flex-basis总和
+itemSum = 60 + 70 + 80 + 90 + 100 = 400
+// 第一个伸缩项目对应的flex-shrink比例
+flexRatio = 1 / ( 1 + 2 + 3 + 4 + 5 ) = 1/15
+// 第一个伸缩项目缩小宽度
+extendWidth = ( 400 - 250 ) * 1/15 = 10
+// 第一个伸缩项目压缩后的宽度
+itemWidth = 60 - 10 = 50
+```
+计算后得到第一个伸缩项目压缩后的宽度是50px，我们通过chrome上的盒子模型来看看是否正确
+
+<img src="./images/flex-shrink-box.png" alt="" width="266px">
+
+chrome计算的结果和我们计算的结果不一样。
+
+<img src="./images/gangga.jpg" alt="" width="345px">
+
+伸缩项目压缩的计算方式和拉伸的不一样，是因为压缩会有极端情况，我们把第一个伸缩项目的`flex-shrink`修改为10，此时缩小宽度为`( 400 - 250 ) * ( 10 / 24) = 62.5`，缩小的宽度比原宽度要大，计算的压缩后的宽度变成了负数。
+
+为了避免这种极端情况，计算缩小比例是要考虑伸缩项目的原宽度。
+
+正确的公式是这样的
+> 伸缩项目缩小宽度 = (项目宽度或项目设置的flex-basis总和 - 项目容器宽度) * (对应的flex-shrink * 项目宽度或项目设置的flex-basis比例)
+> 压缩后伸缩项目宽度 = 原伸缩项目宽度 - 缩小宽度
+
+对应着公式一步步计算：
+```
+// 项目容器宽度
+container = 250
+// 项目宽度或项目设置的flex-basis总和
+itemSum = 60 + 70 + 80 + 90 + 100 = 400
+// 第一个伸缩项目对应的flex-shrink比例
+flexRatio = (1*60) / (1*60+2*70+3*80+4*90+5*100) = 6/130
+// 第一个伸缩项目缩小宽度
+extendWidth = ( 400 - 250 ) * 6/130 ≈ 6.922
+// 第一个伸缩项目压缩后的宽度
+itemWidth = 60 - 6.922 = 53.078
+```
+
+计算后得到第一个伸缩项目压缩后的宽度是53.078px，和chrome上的盒子模型是一样的。
 
 ## Flexbox属性缩写陷阱
 
