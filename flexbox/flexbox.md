@@ -207,6 +207,15 @@ itemWidth = 60 - 6.922 = 53.078
 计算后得到第一个伸缩项目压缩后的宽度是53.078px，和chrome上的盒子模型是一样的。
 
 ## Flexbox属性缩写陷阱
+上面介绍的`flex-grow`、`flex-shrink`和`flex-basis`有一个缩写的写法`flex`。
+
+> `flex`: `flex-grow` [`flex-shrink`] [`flex-basis`]
+
+`flex`各种缩写的值
+* `flex: initial` == `flex: 0 1 auto`
+* `flex: none` == `flex: 0 0 auto`
+* `flex: auto` == `flex: 1 1 auto`
+* `flex: number` == `flex: number 1 0%`
 
 ## 需要注意的Flexbox特性
 
