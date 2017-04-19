@@ -227,12 +227,3 @@ itemWidth = 60 - 6.922 = 53.078
 ## 需要注意的Flexbox特性
 
 ## 旧版Flexbox的BUG
-
-> ## 这是一个标题。
-> 
-> 1.   这是第一行列表项。
-> 2.   这是第二行列表项。
-> 
-> 给出一些例子代码：
-> 
->     return shell_exec("echo $input | $markdown_script");
