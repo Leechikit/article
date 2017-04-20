@@ -1,12 +1,12 @@
 # Flexbox布局的正确使用姿势
 
 > 目录：
-> 1. [Flexbox兼容性](https://github.com/Leechikit/article/blob/master/flexbox/flexbox.md#flexbox兼容性)
-> 2. [Flexbox新旧属性](https://github.com/Leechikit/article/blob/master/flexbox/flexbox.md#flexbox新旧属性)
-> 3. [Flexbox分配空间原理](https://github.com/Leechikit/article/blob/master/flexbox/flexbox.md#flexbox分配空间原理)
-> 4. [Flexbox属性缩写陷阱](https://github.com/Leechikit/article/blob/master/flexbox/flexbox.md#flexbox属性缩写陷阱)
-> 5. [需要注意的Flexbox特性](https://github.com/Leechikit/article/blob/master/flexbox/flexbox.md#需要注意的flexbox特性)
-> 6. [旧版Flexbox的BUG](https://github.com/Leechikit/article/blob/master/flexbox/flexbox.md#旧版flexbox的bug)
+> * [Flexbox兼容性](https://github.com/Leechikit/article/blob/master/flexbox/flexbox.md#flexbox兼容性)
+> * [Flexbox新旧属性](https://github.com/Leechikit/article/blob/master/flexbox/flexbox.md#flexbox新旧属性)
+> * [Flexbox分配空间原理](https://github.com/Leechikit/article/blob/master/flexbox/flexbox.md#flexbox分配空间原理)
+> * [Flexbox属性缩写陷阱](https://github.com/Leechikit/article/blob/master/flexbox/flexbox.md#flexbox属性缩写陷阱)
+> * [需要注意的Flexbox特性](https://github.com/Leechikit/article/blob/master/flexbox/flexbox.md#需要注意的flexbox特性)
+> * [旧版Flexbox的BUG](https://github.com/Leechikit/article/blob/master/flexbox/flexbox.md#旧版flexbox的bug)
 
 ## Flexbox兼容性
 
