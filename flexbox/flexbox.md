@@ -2,8 +2,13 @@
 
 ## Flexbox兼容性
 
+PC端的兼容性
 ![Alt text](./images/flexbox-pc.png)
+
+移动端的兼容性
 ![Alt text](./images/flexbox-wap.png)
+
+如上图，为了兼容IE10-11和Android4.3-，UC，我们仍需要使用Flexbox的旧属性。
 
 ## Flexbox新旧属性
 
@@ -14,7 +19,7 @@ Flexbox的新属性提供了很多旧版本没有的功能，但是目前Android
 但想象是美好的，现实是残酷的，新旧属性里有那么几个顽固分子并不能乖乖的表现的一样，总有那么一点不同。
 下面我们来看看是哪些新旧属性有不同：
 
-#### `flex-direction:row-reverse` vs `box-orient:horizontal;box-direction:reverse`
+### `flex-direction:row-reverse` vs `box-orient:horizontal;box-direction:reverse`
 相同点：改变主轴方向和伸缩项目的排列顺序；在ltr下伸缩项目从右到左排列。
 
 不同点：
@@ -27,7 +32,7 @@ Flexbox的新属性提供了很多旧版本没有的功能，但是目前Android
 
 <img src="./images/row-reverse2.png" width="320px"/>
 
-#### `flex-direction:column-reverse` vs `box-orient:vertical;box-direction:reverse`
+### `flex-direction:column-reverse` vs `box-orient:vertical;box-direction:reverse`
 相同点：改变主轴方向和伸缩项目的排列顺序；在ltr下伸缩项目从下到上排列。
 
 不同点：
@@ -40,7 +45,7 @@ Flexbox的新属性提供了很多旧版本没有的功能，但是目前Android
 
 <img src="./images/column-reverse2.png" width="60px"/>
 
-#### `oreder:integer` vs `box-ordinal-group:integer`
+### `oreder:integer` vs `box-ordinal-group:integer`
 相同点：定义伸缩项目显示顺序。
 
 不同点：
@@ -48,12 +53,12 @@ Flexbox的新属性提供了很多旧版本没有的功能，但是目前Android
 `oreder:integer`：默认值为0；可以为负值。
 `box-ordinal-group:integer`：默认值为1；取值大于1。
 
-#### `flex-grow:number` vs `box-flex:number`
+### `flex-grow:number` vs `box-flex:number`
 相同点：定义伸缩项目的扩展因素。
 
 不同点：`box-flex:number`同时定义了伸缩项目的缩小因素。
 
-#### `flex-shrink:number` vs `box-flex:number`
+### `flex-shrink:number` vs `box-flex:number`
 相同点：定义伸缩项目的缩小因素。
 
 不同点：`box-flex:number`同时定义了伸缩项目的扩展因素。
@@ -258,7 +263,7 @@ itemWidth = 60 - 6.922 = 53.078
 
 每个伸缩项目在原宽度上拉伸相同的宽度
 
-<img src="./images/flex-grow1-box.png" alt="" width="320px">
+<img src="./images/flex-grow1-box.png" alt="" width="266px">
 
 通过上面的计算拉伸后的伸缩项目宽度，可以计算第一个伸缩项目拉伸后的宽度
 ```
@@ -299,5 +304,32 @@ itemWidth = 0 + 110 = 110
 
 ## 需要注意的Flexbox特性
 
+### 无效属性
+* column-*在伸缩容器无效
+* float和clear在伸缩项目无效
+* vertical-align在伸缩项目无效
+* ::first-line and ::first-letter在伸缩容器无效
+
+### 伸缩容器中的非空字符文本节点也是伸缩项目
+
+```
+<div class="flexbox-wrap">
+    <span class="flexbox-item">1</span>
+    <span class="flexbox-item">2</span>
+    我是个假文本
+    <span class="flexbox-item">3</span>
+    <span class="flexbox-item">4</span>
+    <span class="flexbox-item">5</span>
+</div>
+```
+
+<img src="./images/textelement.png" alt="" width="320px">
+
+### margin折叠
+
+* 伸缩容器和伸缩项目的margin不会折叠
+* 伸缩项目间的margin不会折叠
+
 ## 旧版Flexbox的BUG
 
+伸缩项目为行内元素要加display:block;或display:flex
