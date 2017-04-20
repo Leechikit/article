@@ -220,19 +220,83 @@ itemWidth = 60 - 6.922 = 53.078
 * `flex: auto` == `flex: 1 1 auto`
 * `flex: number` == `flex: number 1 0%`
 
-在实际项目中，很多人会直接写使用缩写的`flex`来给伸缩项目分配空间，但是使用缩写属性会留下一些陷阱，导致表现的结果不尽如人意。
+在实际项目中，会直接写使用缩写的`flex`来给伸缩项目分配空间，但是使用缩写属性会留下一些陷阱，导致表现的结果不尽如人意。
 
-当我们需要把伸缩项目拉伸填满容器时，
+分别使用`flex`和`flex-grow`来把伸缩项目拉伸填满容器，看看表现的差异。
+
+首先看看使用`flex-grow`拉伸伸缩项目的效果
+
+```
+.flexbox-wrap{
+    width:550px;
+    display: flex;
+}
+.flexbox-item{
+    flex-grow:1;
+    &:nth-child(1){
+        width:60px;
+    }
+    &:nth-child(2){
+        width:70px;
+    }
+    &:nth-child(3){
+        width:80px;
+    }
+    &:nth-child(4){
+        width:90px;
+    }
+    &:nth-child(5){
+         width:100px;
+    }
+}
+@for $i from 1 through 5 {
+    .flexbox-item:nth-child(#{$i}){
+        background-color: rgba(35 * (6-$i), 20 * $i, 35 * $i,1);
+    }
+}
+```
+
+每个伸缩项目在原宽度上拉伸相同的宽度
+
+<img src="./images/flex-grow1-box.png" alt="" width="320px">
+
+通过上面的计算拉伸后的伸缩项目宽度，可以计算第一个伸缩项目拉伸后的宽度
+```
+// 项目容器宽度
+container = 550
+// 项目宽度或项目设置的flex-basis总和
+itemSum = 60 + 70 + 80 + 90 + 100 = 400
+// 第一个伸缩项目对应的flex-grow比例
+flexRatio = 1 / ( 1 + 1 + 1 + 1 + 1 ) = 1/5
+// 第一个伸缩项目扩展宽度
+extendWidth = ( 550 - 400 ) * 1/5 = 30
+// 第一个伸缩项目拉伸后的宽度
+itemWidth = 60 + 30 = 90
+```
+<img src="./images/flex-grow1-box.png" alt="" width="266px">
+
+然后我们把`flex-grow:1`替换成`flex:1`，下面是表现的效果，伸缩项目拉伸后的宽度变成一样了。
+
+<img src="./images/flex1.png" alt="" width="320px">
+
+从chrome的盒子模型可看到伸缩项目拉伸后宽度变成了`110px`，伸缩容器等分了容器的宽度。
+
+<img src="./images/flex1-box.png" alt="" width="266px">
+
+`flex:1`展开后是`flex:1 1 0%`，`flex-grow:1`相当于`flex:1 1 auto`，两者的区别在于`flex-basis`的值不同。`flex:1`为项目宽度重新设置了宽度为`0`，所以可分配空间为整个容器，从公式计算上可以更直观理解：
+```
+// 项目容器宽度
+container = 550
+// 项目宽度或项目设置的flex-basis总和
+itemSum = 0 + 0 + 0 + 0 + 0 = 0
+// 第一个伸缩项目对应的flex-grow比例
+flexRatio = 1 / ( 1 + 1 + 1 + 1 + 1 ) = 1/5
+// 第一个伸缩项目扩展宽度
+extendWidth = ( 550 - 0 ) * 1/5 = 110
+// 第一个伸缩项目拉伸后的宽度
+itemWidth = 0 + 110 = 110
+```
 
 ## 需要注意的Flexbox特性
 
 ## 旧版Flexbox的BUG
-
-> ## 这是一个标题。
-> 
-> 1.   这是第一行列表项。
-> 2.   这是第二行列表项。
-> 
-> 给出一些例子代码：
-> 
->     return shell_exec("echo $input | $markdown_script");
