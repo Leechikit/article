@@ -10,6 +10,33 @@
 * 日志模块`log4js`
 * 邮件模块`nodemailer`和`nodemailer-smtp-transport`
 
+## 构建项目
+首先使用[koa-generator](https://github.com/17koa/koa-generator)来构建项目。
+### 1 安装koa-generator
+在终端输入：
+```
+$ npm install -g koa-generator
+```
+
+### 2 使用koa-generator生成koa2项目
+在工作目录下，输入：
+```
+$ koa2 reportSystem
+```
+
+成功创建项目后，进入项目目录，并执行`npm install`命令
+```
+$ cd reportSystem 
+$ npm install
+```
+
+### 3 启动项目
+在终端输入：
+```
+$ npm start
+```
+项目启动后，默认端口号是3000，会在浏览器自动打开一个页面，说明项目启动成功。
+
 ## 路由
 要接受到错误信息，首先要提供在后端接口错误时请求的接口，把接口url、接口返回的错误码等信息作为接口的参数传送到我们的报警系统。
 
