@@ -161,8 +161,23 @@ mongoose.connection.on('connected', function () {
     console.log('Mongoose connection open');
 });
 
-export default mongoose.model('errorreport', LogSchema);
+module.exports = mongoose.model('errorreport', LogSchema);
 ```
 
 > 需要注意的是使用*mongoose*创建模型时，若代码中的集合名是单数时，在数据库中对应的集合名是复数；若代码中的集合名是复数时，在数据库中对应的集合名则相同。
 
+### 3 查找数据库
+```
+function findLog(query, sort, limit) {
+    return new Promise((resolve,reject)=>{ 
+        LogModel.find(query,(err,res)=>{
+            if(err){
+                console.log(err);
+            }else{
+                resolve(res);
+            }
+        }).sort(sort).limit(limit);
+    });
+}
+module.exports = findLog;
+```
