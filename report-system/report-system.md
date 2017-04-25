@@ -36,18 +36,10 @@ $ npm start
 ```
 项目启动后，默认端口号是3000，在浏览器能访问`http://127.0.0.1:3000/`证明启动成功。
 
-## 日志入库
-把接受到的错误信息存储到数据库，日后可制作成图表，方便统计分析接口报警率，频发时段等信息。
-
-### 1 安装mongodb和mongoose
-在项目目录，输入
-```
-npm i moogodb mongoose --save
-```
-
 ## 路由
 要接受到错误信息，首先要提供在后端接口错误时请求的接口，把接口url、接口返回的错误码等信息作为接口的参数传送到我们的报警系统。
 
+## 1 设置路由
 我们希望接口的地址是这要的
 ```
 127.0.0.1:3000/log/w
@@ -55,11 +47,9 @@ npm i moogodb mongoose --save
 在*routes*目录下添加**log.js**文件，代码如下：
 ```
 const router = require('koa-router')();
-const report = require('../utils/report');
 
 router.get('/w', async (ctx, next)=>{
     ctx.body = 'success';
-    await report();
 });
 
 module.exports = router;
@@ -73,13 +63,157 @@ const log = require('./routes/log');
 router.use('/log', log.routes(), log.allowedMethods());
 ```
 
-启动服务，在浏览器中访问127.0.0.1:3001/api/users/getUser可以得到如下输出，说明配置成功。
+启动服务，在浏览器中访问127.0.0.1:3001/log/w可以得到如下输出，说明配置成功。
+
+## 2 封装上报接口
+封装一个上报接口，方便用户在接口返回结果中调用，并传入各种参数上报。
+
+在*public* > *javascripts*目录中添加**report.js**文件，添加代码如下：
+```
+const url = "/log/w";
+
+let getParam = (opt)=>{
+    let obj = opt;
+    var param = [];
+    for( let h in obj){
+        if(obj.hasOwnProperty(h)){
+            param.push(encodeURIComponent(h)+"="+(obj[h] === void 0 || obj[h] === null ? "": encodeURIComponent(obj[h])));
+        }
+    }
+    return param.join("&");
+}
+
+let reportEvent = (reportType,reportValue,appVersion,phoneType) => {
+    let param = getParam({
+        reportType,
+        reportValue,
+        appVersion,
+        phoneType
+    })
+    let img = new Image();
+    img.src =  url + "?" + param;
+}
+```
+
+在需要上报接口错误的页面引入*http://127.0.0.1:3000/javascripts/report.js*文件，使用*reportEvent*方法上报。
+
+## 日志入库
+把接受到的错误信息存储到数据库，日后可制作成图表，方便统计分析接口报警率，频发时段等信息。
+
+### 1 安装mongodb和mongoose
+在项目目录，输入
+```
+npm i moogodb mongoose --save
+```
+
+### 2 创建日志模型
+创建日志模型前，需要链接数据库，并创建链接，定义logSchema（相当于数据库建表）。
+
+在*utils*目录下添加**log_model.js**，代码如下：
+```
+const mongoose = require('mongoose');
+
+let Schema = mongoose.Schema;
+let LogSchema = new Schema({
+    reportType: String,
+    data: Object
+});
+
+mongoose.connect('mongodb://127.0.0.1/logs');
+
+mongoose.connection.on('connected', function () {
+    console.log('Mongoose connection open');
+});
+
+module.exports = mongoose.model('errorreport', LogSchema);
+```
+
+> 需要注意的是使用*mongoose*创建模型时，若代码中的集合名是单数时，在数据库中对应的集合名是复数；若代码中的集合名是复数时，在数据库中对应的集合名则相同。
+
+### 3 格式化上报的日志
+对路由获取的数据进行格式化，在*utils*目录下添加**log_format.js**，代码如下：
+```
+/**
+ * 格式化上报日志
+ *
+ * @param: {Objet} ctx 请求对象
+ * @return: {Object} 格式化后的对象
+ */
+var logFormat = function (ctx) {
+    var logObj = new Object();
+    // 请求信息
+    var req = ctx.request;
+    // 添加请求日志
+    var method = req.method;
+    // 页面地址
+    logObj["url"] = req.header["referer"];
+    // 上报时间
+    let date = new Date();
+    date.setSeconds(0);
+    date.setMilliseconds(0);
+    logObj["time"] = date.getTime();
+    // 请求参数
+    if (method === 'GET') {
+        let query = req.query;
+        for(let key in query){
+            logObj[key] = query[key];
+        };
+    } else {
+        logObj["request body"] = req.body;
+    }
+    return logObj;
+}
+
+module.exports = logFormat;
+```
+
+### 4 保存日志到数据库
+在*utils*目录下添加**save_log.js**，代码如下：
+```
+const LogModel = require('./log_model');
+
+/**
+ * 保存日志
+ *
+ * @param: {Object} obj 信息
+ */
+function saveLog(obj){
+	let log = new LogModel(obj);
+	log.save((error, doc) => {
+	    if (error) {
+	        console.log(error);
+	    }
+	});
+}
+
+module.exports = saveLog;
+```
+
+### 5 上报日志
+在*w*的路由设置中，获取得到的数据并格式化，然后保存到数据库中。
+
+修改*routes*目录下的**log.js**文件，代码如下：
+```
+const router = require('koa-router')();
+const logFormat = require('../utils/log_format');
+const saveLog = require('../utils/save_log');
+
+router.get('/w', async (ctx, next)=>{
+    ctx.body = 'success';
+    // 格式化获取的数据
+    let logObj = logFormat(ctx);
+    // 保存到数据库
+    await saveLog(logObj);
+});
+
+module.exports = router;
+```
 
 ## 发送邮件
 把报警的信息制作成表格，发送至配置的邮箱。
 
 ### 1 发送邮件配置文件
-在项目目录下创建*config*目录，放置配置文件，在*config*目录下添加*host_config.js*，代码如下：
+在项目目录下创建*config*目录，放置配置文件，在*config*目录下添加**host_config.js**，代码如下：
 ```
 module.exports = {
     user: 'xxx@gmail.com', // 发送邮件邮箱
@@ -103,6 +237,13 @@ let transport = nodemailer.createTransport(smtpTransport({
     }
 }));
 
+/**
+ * 发送邮件
+ *
+ * @param: {String} receiver 接收邮箱
+ * @param: {String} theme 邮箱标题
+ * @param: {String} html 邮箱内容
+ */
 let sendMail = (receiver, theme, html) => {
     return new Promise((resolve,reject)=>{
         transport.sendMail({
@@ -127,7 +268,7 @@ module.exports = sendMail;
 通过配置，可订阅接口，定时发邮件通知配置时间段内接口报警情况。
 
 ### 1 接收邮件配置文件
-在*config*目录下添加*report_config.js*，代码如下：
+在*config*目录下添加**report_config.js**，代码如下：
 ```
 module.exports = {
     1: { // 项目id
@@ -143,36 +284,20 @@ module.exports = {
     }
 }
 ```
-### 2 创建日志模型
-创建日志模型前，需要链接数据库，并创建链接，定义logSchema（相当于数据库建表）。
 
-在*utils*目录下添加*log_model.js*，代码如下：
+### 2 查找数据库
+在*utils*目录下添加**find_log.js**，代码如下：
 ```
-const mongoose = require('mongoose');
-
-let Schema = mongoose.Schema;
-let LogSchema = new Schema({
-    reportType: String,
-    data: Object
-});
-
-mongoose.connect('mongodb://127.0.0.1/logs');
-
-mongoose.connection.on('connected', function () {
-    console.log('Mongoose connection open');
-});
-
-module.exports = mongoose.model('errorreport', LogSchema);
-```
-
-> 需要注意的是使用*mongoose*创建模型时，若代码中的集合名是单数时，在数据库中对应的集合名是复数；若代码中的集合名是复数时，在数据库中对应的集合名则相同。
-
-### 3 查找数据库
-在*utils*目录下添加*find_log.js*，代码如下：
-```
+/**
+ * 查询数据库
+ *
+ * @param: {Object} query 查询条件
+ * @param: {Object} sort 排序条件
+ * @param: {Number} limit 显示数据数
+ */
 function findLog(query, sort, limit) {
     return new Promise((resolve,reject)=>{ 
-        LogModel.find(query,(err,res)=>{
+        LogModel.find(query, {'_id':0}, (err,res)=>{
             if(err){
                 console.log(err);
             }else{
@@ -181,11 +306,10 @@ function findLog(query, sort, limit) {
         }).sort(sort).limit(limit);
     });
 }
-module.exports = findLog;
 ```
 
-### 4 上报信息发送邮件
-在*utils*目录下添加*regular_report.js*，根据条件查询数据库，把获取的信息发送给配置的邮件，代码如下：
+### 3 上报信息发送邮件
+在*utils*目录下添加**regular_report.js**，根据条件查询数据库，把获取的信息发送给配置的邮件，代码如下：
 ```
 const sendMail = require('./send_mail');
 const reportConfig = require('../config/report_config');
@@ -213,8 +337,8 @@ const findLog = require('../utils/find_log');
 }
 ```
 
-## 5 循环所有项目
-循环配置文件中的所有项目配置，若配置了可监听并且有收件邮箱则发送邮件，在*regular_report.js*中添加代码如下：
+### 4 循环所有项目
+循环配置文件中的所有项目配置，若配置了可监听并且有收件邮箱则发送邮件，在**regular_report.js**中添加代码如下：
 ```
 /**
  * 循环所有项目
@@ -236,8 +360,8 @@ function loopReportConfig(minDate, maxDate) {
 }
 ```
 
-## 6 定时轮询
-定时轮询，当配置时间与当前时间相同时则开始循环所有项目配置，和上报信息发送邮件。
+### 5 定时轮询
+定时轮询，当配置时间与当前时间相同时则开始循环所有项目配置，和上报信息发送邮件。在**regular_report.js**中添加代码如下：
 ```
 // 轮询间隔
 const DURATION = 60000;
@@ -263,5 +387,5 @@ function loopDate() {
 
 ```
 
-# 报警条件
+## 报警条件
 在一段时间内接口报警次数超过配置阀值时发邮件通知。
