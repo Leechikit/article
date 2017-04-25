@@ -123,9 +123,8 @@ let sendMail = (receiver, theme, html) => {
 module.exports = sendMail;
 ```
 
-## 报警条件
+## 定时上报信息
 通过配置，可订阅接口，定时发邮件通知配置时间段内接口报警情况。
-还可以在一段时间内接口报警次数超过配置阀值时发邮件通知。
 
 ### 1 接收邮件配置文件
 在*config*目录下添加*report_config.js*，代码如下：
@@ -184,3 +183,85 @@ function findLog(query, sort, limit) {
 }
 module.exports = findLog;
 ```
+
+### 4 上报信息发送邮件
+在*utils*目录下添加*regular_report.js*，根据条件查询数据库，把获取的信息发送给配置的邮件，代码如下：
+```
+const sendMail = require('./send_mail');
+const reportConfig = require('../config/report_config');
+const hostConfig = require('../config/host_config');
+const mailFormat = require('./mail_format');
+const findLog = require('../utils/find_log');
+/**
+ * 上报信息发送邮件
+ *
+ * @param: {Number} reportType 上报项目id
+ * @param: {Date} minDate 最小日期
+ * @param: {Date} maxDate 最大日期
+ */
+ async function reportLogMes(reportType,minDate,maxDate) {
+ 	// 获取数据
+    let mes = await findLog({ 'reportType': reportType, 'time': { '$gt': minDate.time, '$lte': maxDate.time } });
+    // 邮件标题
+    let theme = getTheme(reportType,minDate,maxDate);
+    // 配置的邮件
+    let {mails} = reportConfig[reportType];
+    // 数据库中有数据则发送
+    mes && mails.forEach((item) => {
+        sendMail(item,theme,mailFormat(mes));
+    });
+}
+```
+
+## 5 循环所有项目
+循环配置文件中的所有项目配置，若配置了可监听并且有收件邮箱则发送邮件，在*regular_report.js*中添加代码如下：
+```
+/**
+ * 循环所有项目
+ *
+ * @param: {Date} minDate 最小日期
+ * @param: {Date} maxDate 最大日期
+ */
+function loopReportConfig(minDate, maxDate) {
+    for (let reportType in reportConfig) {
+        let {
+            watch,
+            mails
+        } = reportConfig[reportType];
+        // 若开启监听并有设置邮箱则发送邮件
+        if (watch == true && mails && mails.length > 0) {
+            reportLogMes(reportType,minDate,maxDate);
+        }
+    }
+}
+```
+
+## 6 定时轮询
+定时轮询，当配置时间与当前时间相同时则开始循环所有项目配置，和上报信息发送邮件。
+```
+// 轮询间隔
+const DURATION = 60000;
+/**
+ * 定时轮询
+ *
+ */
+function loopDate() {
+	//获取设置小时和分钟
+    let {configHour, configMinute} = getConfigDate();
+    let interval = setInterval(() => {
+    	// 获取当前小时,分钟和日期
+        let nowDate = getNowDate();
+        // 当设置时分与当前时分一样，则循环项目发送邮件
+        if (configHour == nowDate.hour && configMinute == nowDate.minute) {
+            // 获取上一天日期
+            let lastDate = getLastDate()
+            // 循环所有项目
+            loopReportConfig(lastDate, nowDate);
+        }
+    }, DURATION);
+}
+
+```
+
+# 报警条件
+在一段时间内接口报警次数超过配置阀值时发邮件通知。
