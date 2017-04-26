@@ -10,6 +10,9 @@
 * 邮件模块`nodemailer`和`nodemailer-smtp-transport`
 
 ## 构建项目
+
+[项目仓库](https://github.com/Leechikit/report-system)
+
 首先使用[koa-generator](https://github.com/17koa/koa-generator)来构建项目。
 ### 1 安装koa-generator
 在终端输入：
@@ -68,7 +71,7 @@ router.use('/log', log.routes(), log.allowedMethods());
 ## 2 封装上报接口
 封装一个上报接口，方便用户在接口返回结果中调用，并传入各种参数上报。
 
-在*public* > *javascripts*目录中添加**report.js**文件，添加代码如下：
+在*public > javascripts*目录中添加**report.js**文件，添加代码如下：
 ```
 const url = "/log/w";
 
@@ -109,9 +112,7 @@ npm i moogodb mongoose --save
 ```
 
 ### 3 创建日志模型
-创建日志模型前，需要链接数据库，并创建链接，定义logSchema（相当于数据库建表）。
-
-在*utils*目录下添加**log_model.js**，代码如下：
+创建日志模型前，需要链接数据库，并创建链接，定义logSchema（相当于数据库建表）。在*utils*目录下添加**log_model.js**，代码如下：
 ```
 const mongoose = require('mongoose');
 
@@ -133,7 +134,7 @@ module.exports = mongoose.model('errorreport', LogSchema);
 > 需要注意的是使用*mongoose*创建模型时，若代码中的集合名是单数时，在数据库中对应的集合名是复数；若代码中的集合名是复数时，在数据库中对应的集合名则相同。
 
 ### 4 格式化上报的日志
-对路由获取的数据进行格式化，在*utils*目录下添加**log_format.js**，代码如下：
+对路由获取的数据进行格式化。在*utils*目录下添加**log_format.js**，代码如下：
 ```
 /**
  * 格式化上报日志
@@ -192,9 +193,7 @@ module.exports = saveLog;
 ```
 
 ### 6 上报日志
-在*w*的路由设置中，获取得到的数据并格式化，然后保存到数据库中。
-
-修改*routes*目录下的**log.js**文件，代码如下：
+在*w*的路由设置中，获取得到的数据并格式化，然后保存到数据库中。修改*routes*目录下的**log.js**文件，代码如下：
 ```
 const router = require('koa-router')();
 const logFormat = require('../utils/log_format');
@@ -215,7 +214,7 @@ module.exports = router;
 把报警的信息制作成表格，发送至配置的邮箱。
 
 ### 1 发送邮件配置文件
-在项目目录下创建*config*目录，放置配置文件，在*config*目录下添加**host_config.js**，代码如下：
+在项目目录下创建*config*目录，放置配置文件。在*config*目录下添加**host_config.js**，代码如下：
 ```
 module.exports = {
     user: 'xxx@gmail.com', // 发送邮件邮箱
@@ -311,7 +310,7 @@ function findLog(query, sort, limit) {
 ```
 
 ### 3 上报信息发送邮件
-在*utils*目录下添加**regular_report.js**，根据条件查询数据库，把获取的信息发送给配置的邮件，代码如下：
+根据条件查询数据库，把获取的信息发送给配置的邮件。在*utils*目录下添加**regular_report.js**，代码如下：
 ```
 const sendMail = require('./send_mail');
 const reportConfig = require('../config/report_config');
@@ -340,7 +339,7 @@ const findLog = require('../utils/find_log');
 ```
 
 ### 4 循环所有项目
-循环配置文件中的所有项目配置，若配置了可监听并且有收件邮箱则发送邮件，在**regular_report.js**中添加代码如下：
+循环配置文件中的所有项目配置，若配置了可监听并且有收件邮箱则发送邮件。在**regular_report.js**中添加代码如下：
 ```
 /**
  * 循环所有项目
@@ -390,10 +389,18 @@ function loopDate() {
 ```
 
 ## 实时报警
-在一段时间内接口报警次数超过配置阀值时发邮件通知。
+在配置时间内接口日志次数达到配置阀值时发邮件通知。
+
+怎么计算配置时间内接口日志次数是一个难点。
+
+1. 方法一是给各个项目创建一个计算日志数的计数器，然后每个项目根据配置时间轮询，每次轮询检查计数器是否达到配置阀值并清空计数器，达到则发邮件通知。这种方法一是需要多个轮询，在接口稳定长时间没有上报日志时显然浪费资源；二是轮询间隔时间固定，若在第一个时间段后半段报警数是阀值的一半，在第二个时间段前半段报警数是阀值的一半，虽然在两次时间段内都不会报警，但是第一个时间段后半段和第二个时间段前半段相加是在配置时间内的，报警数相加达到了阀值，应该是一个需要报警的情况。
+2. 方法二是每次有日志上报时，到数据库内查询配置时间内的日志数，若日志数达到配置阀值则发邮件通知。这种方法一是在频繁上报日志的情况下会多次查询数据库造成数据库压力过大；二是会在同一时间段内重复报警。
+3. 方法三是把各个项目日志日期倒序并把配置阀值数量的条数缓存起来，每次有日志上报时，把日志的日期加到缓存队列的最后，并保持队列数量不超过设置的阀值，超过则把队列最前面的删除。然后检查队列中配置时间内的日志数量是否达到配置阀值，达到则发邮件通知。
+
+上面3种方法中，第三种方法对数据库压力最少，也不需要一直轮询，因此以下我们按照方法三的思路来展开代码。
 
 ### 1 缓存项目日志的日期
-在*utils*目录下添加**realtime_report.js**，把项目的日志时间缓存到对象`dateCache`里，代码如下：
+把项目的日志时间缓存到对象`dateCache`里。在*utils*目录下添加**realtime_report.js**，代码如下：
 ```
 // 日期缓存
 let dateCache = {};
