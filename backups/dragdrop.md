@@ -59,6 +59,20 @@ OR
 ### files
 包含一个在数据传输上所有可用的本地文件列表。如果拖动操作不涉及拖动文件，此属性是一个空列表。
 
+```
+filesZoneEl.addEventListener("drop", (event) => {
+	event.preventDefault();
+	let files = event.dataTransfer.files;
+	for (let i = 0, len = files.length; i < len; i++) {
+		let liEl = document.createElement("li");
+		liEl.innerHTML = files[i].name;
+		filesListEl.appendChild(liEl);
+	}
+});
+```
+
+![gif _2017 7 1 10 18 10](https://user-images.githubusercontent.com/9698086/27758455-bb7be73a-5e46-11e7-93ea-993f217e0cdf.gif)
+
 ### types
 保存一个被存储数据的类型列表作为第一项，顺序与被添加数据的顺序一致。如果没有添加数据将返回一个空列表。
 
@@ -74,19 +88,19 @@ event.dataTransfer.addElement(element);
 ```
 
 ### setData()
-为一个给定的类型设置数据。
+为一个给定的类型设置数据并存储在**items**属性中。
 ```
 event.dataTransfer.setData(type, data);
 ```
 
 ### getData()
-获取给定类型的数据，无数据时返回空字符串。
+从**items**属性中获取给定类型的数据，无数据时返回空字符串。
 ```
 event.dataTransfer.getData(type);
 ```
 
 ### clearData()
-删除与给定类型关联的数据，若类型为空则删除所有数据。
+从**items**属性中删除与给定类型关联的数据，若类型为空则删除所有数据。
 ```
 event.dataTransfer.clearData(type);
 ```
@@ -118,20 +132,22 @@ event.dataTransfer.setDragImage(imgElement, offsetX, offsetY);
 ### 方法
 
 ### add()
-增加一个拖拽数据对象到数组中，并返回增加的拖拽数据对象。
+增加一个拖拽数据对象到**items**属性中，并返回增加的拖拽数据对象。
+
+此方法与上述的`event.dataTransfer.setData(type, data)`方法作用相同
 ```
 event.dataTransfer.items.add(data, type);
 event.dataTransfer.items.add(file);
 ```
 
 ### remove()
-从数组中移除指定位置的一个拖拽数据对象。
+从**items**属性中移除指定位置的一个拖拽数据对象。
 ```
 event.dataTransfer.items.remove(index);
 ```
 
 ### clear()
-清空列表中的所拖拽数据对象。
+清空**items**属性中的所拖拽数据对象。
 ```
 event.dataTransfer.items.clear();
 ```
