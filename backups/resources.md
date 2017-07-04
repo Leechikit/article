@@ -1,4 +1,4 @@
-# 图片资源的加载与渲染时机
+# Web图片资源的加载与渲染时机
 
 此文研究页面中的图片资源的加载和渲染时机，使得我们能更好的管理图片资源，避免不必要的流量和提高用户体验。
 
@@ -9,19 +9,19 @@
 
 从上图可看出，浏览器加载一个HTML页面后进行如下操作：
 
-* 解析HTML —> 产生DOM树
-* 加载样式 —> 解析样式 —> 产生样式规则树
+* 解析HTML —> 构建DOM树
+* 加载样式 —> 解析样式 —> 构建样式规则树
 * 加载javascript —> 执行javascript代码
-* 把DOM树和样式规则树匹配产生渲染树
+* 把DOM树和样式规则树匹配构建渲染树
 * 计算元素位置进行布局
 * 绘制
 
-从上图我们不能很直观的看出图片资源从什么时候开始加载，下面我们先给出结论，告诉大家图片加载和渲染的时机：
+从上图我们不能很直观的看出图片资源从什么时候开始加载，下图标出图片加载和渲染的时机：
 
-* 解析HTML【遇到`<img>`标签加载图片】 —> 产生DOM树
-* 加载样式 —> 解析样式【遇到背景图片链接不加载】 —> 产生样式规则树
+* 解析HTML【遇到`<img>`标签加载图片】 —> 构建DOM树
+* 加载样式 —> 解析样式【遇到背景图片链接不加载】 —> 构建样式规则树
 * 加载javascript —> 执行javascript代码
-* 把DOM树和样式规则树匹配产生渲染树【加载渲染树上的背景图片】
+* 把DOM树和样式规则树匹配构建渲染树【加载渲染树上的背景图片】
 * 计算元素位置进行布局
 * 绘制【开始渲染图片】
 
@@ -40,13 +40,13 @@
 <div class="img-purple" style="display:none"></div>
 ```
 图片资源请求如下：
-![oru7 h3rz qu3snw _umf4a](https://user-images.githubusercontent.com/9698086/27082582-f2380d3a-5077-11e7-9878-e218c8e0c04f.png)
+![display-none](https://user-images.githubusercontent.com/9698086/27082582-f2380d3a-5077-11e7-9878-e218c8e0c04f.png)
 
 设置了`display:none`属性的元素，图片不会渲染出来，但会加载。
 
 **原理**
 
-把DOM树和样式规则树匹配产生渲染树时，会把可渲染元素上的所有属性（如`display:none`属性和`background-image`属性）结合一起产出到渲染树。
+把DOM树和样式规则树匹配构建渲染树时，会把可渲染元素上的所有属性（如`display:none`属性和`background-image`属性）结合一起产出到渲染树。
 
 当解析渲染树时会加载`<img>`标签元素上的图片，发现元素上有`background-image`属性时会加载背景图片。
 
@@ -64,17 +64,17 @@
 </div>
 ```
 图片资源请求如下：
-![6cu vs 5 ix xddy9b6e qx](https://user-images.githubusercontent.com/9698086/27082391-18d9f472-5077-11e7-8618-1dab27fbef5d.png)
+![display-none](https://user-images.githubusercontent.com/9698086/27082391-18d9f472-5077-11e7-8618-1dab27fbef5d.png)
 
 设置了`display:none`属性元素的子元素，样式表中的背景图片不会渲染出来，也不会加载；而`<img>`标签的图片不会渲染出来，但会加载。
 
 **原理**
 
-正如上面所说的，产生渲染树时，只会把可渲染元素产出到渲染树，这就意味有不可渲染元素，当匹配DOM树和样式规则树时，若发现一个元素的属性上有`display:none`，浏览器会认为该元素的子元素是不可渲染的，因此不会把该元素的子元素产出到渲染树上。
+正如上面所说的，构建渲染树时，只会把可渲染元素产出到渲染树，这就意味有不可渲染元素，当匹配DOM树和样式规则树时，若发现一个元素的属性上有`display:none`，浏览器会认为该元素的子元素是不可渲染的，因此不会把该元素的子元素产出到渲染树上。
 
-当解析渲染树时渲染树上没有设置了`display:none`属性元素的子元素，因此不会加载该元素中子元素的图片。
+当解析渲染树时渲染树上没有设置了`display:none`属性元素的子元素，因此不会加载该元素中子元素的背景图片。
 
-当绘制时也因为渲染树上没有设置了`display:none`属性元素的子元素，因此该元素中子元素不会渲染出来。
+当绘制时也因为渲染树上没有设置了`display:none`属性元素的子元素，因此该元素中子元素的背景图片不会渲染出来。
 
 ### 重复图片
 
@@ -87,7 +87,7 @@
 <img src="../image/blue.png">
 ```
 图片资源请求如下：
-![ekje2 4t d 6fy b 7](https://user-images.githubusercontent.com/9698086/27082367-0386e10c-5077-11e7-9ed5-7ade17ddb994.png)
+![repeat-image](https://user-images.githubusercontent.com/9698086/27082367-0386e10c-5077-11e7-9ed5-7ade17ddb994.png)
 
 页面中多个`<img>`标签或样式表中的背景图片图片路径是同一个，图片只加载一次。
 
@@ -106,7 +106,7 @@
 <div class="img-orange"></div>
 ```
 图片资源请求如下：
-![sg_8k tuwn6a yd4w g qr](https://user-images.githubusercontent.com/9698086/27082444-510752d6-5077-11e7-9d2a-5dee39ec0511.png)
+![no-image](https://user-images.githubusercontent.com/9698086/27082444-510752d6-5077-11e7-9d2a-5dee39ec0511.png)
 
 不存在元素的背景图片不会加载。
 
@@ -125,10 +125,10 @@
 <div class="img-green"></div>
 ```
 触发hover前的图片资源请求如下：
-![c4 ix2_x 0s na7h _md u](https://user-images.githubusercontent.com/9698086/27082522-be2a30d6-5077-11e7-8edd-12da92cdd0e4.png)
+![class-image](https://user-images.githubusercontent.com/9698086/27082522-be2a30d6-5077-11e7-8edd-12da92cdd0e4.png)
 
 触发hover后的图片资源请求如下：
-![w_vorv 7 x6fy75 q4n _a5](https://user-images.githubusercontent.com/9698086/27082557-daca1d46-5077-11e7-91c0-48aa65d585aa.png)
+![class-image](https://user-images.githubusercontent.com/9698086/27082557-daca1d46-5077-11e7-91c0-48aa65d585aa.png)
 
 当触发伪类的时候，伪类样式上的背景图片才会加载。
 
