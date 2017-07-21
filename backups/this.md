@@ -191,7 +191,18 @@ console.log(this.x);
 ## 复杂情况下的this
 
 ```
-
+var x = 1;
+var a = {
+	x: 2,
+	b: function(){
+		return function(){
+			return function(){
+				console.log(this.x);
+			}		
+		}
+	}
+}
+a.b()()();
 ```
 
 ## 总结
