@@ -196,14 +196,32 @@ var a = {
 	x: 2,
 	b: function(){
 		return function(){
-			return function(){
+			return function foo(){
 				console.log(this.x);
 			}		
 		}
 	}
-}
-a.b()()();
+};
+
+(function(){
+	var x = 3;
+    a.b()()();
+})();
 ```
+
+看到上面的情况是有很多个函数，但我们只需要关注 **this** 所在函数的调用方式，首先我们来简化一下如下：
+```
+var x = 1;
+(function(){
+	var x = 3;
+	var foo = function(){
+		console.log(this.x);
+	}
+	foo();
+});
+```
+
+**this** 所在的函数 **foo** 是个普通函数，我们创建一个虚拟上下文对象，然后普通函数作为这个虚拟上下文对象的方法立即调用。因此这个 **this**指向了这个虚拟上下文。在非严格模式下是全局上下文，浏览器里是 **window** ，NodeJs里是 **Global** ；在严格模式下是 **undefined** 。
 
 ## 总结
 
