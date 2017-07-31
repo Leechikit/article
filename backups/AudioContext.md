@@ -136,10 +136,26 @@ controlVolume(2);
 
 ### BiquadFilterNode
 
-表示一个简单的低频滤波器。它是一个 **AudioNode** 类型的音频处理模块。
+表示一个简单的低频滤波器，可控制声调。它是一个 **AudioNode** 类型的音频处理模块。
 
 ```
-let filter = audioContext.createBiquadFilter();
+let filterNode = audioContext.createBiquadFilter();
 ```
 
-### OscillatorNode
+输出一个变调的音频：
+```
+bufferSource.connect(filterNode);
+filterNode.connect(audioDestinationNode);
+
+let controlFrequency = function(value) {
+	filterNode.frequency.value = value;
+}
+
+// 音频为1000变调
+controlFrequency(1000);
+```
+
+## 多个音频源
+
+
+## 多个音频处理模块
