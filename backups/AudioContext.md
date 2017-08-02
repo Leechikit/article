@@ -2,7 +2,7 @@
 
 如下图，在 **AudioContext** 音频上下文中，把音频文件转成 **buffer** 格式，从音频源 **source** 开始，经过 **AuidoNode** 处理音频，最后到达 **destination** 输出音乐。这里形成了一个音频通道，每个模块通过 **connect** 方法链接并传送音频。
 
-[图]
+![audiocontext1](https://user-images.githubusercontent.com/9698086/28865131-6a6633fe-77a1-11e7-8ca1-4a67a994a97e.png)
 
 ## AudioContext
 创建一个 **AudioContext** 音频上下文：
@@ -134,6 +134,8 @@ let controlVolume = value => {
 controlVolume(2);
 ```
 
+![audiocontext2](https://user-images.githubusercontent.com/9698086/28865152-79aedac8-77a1-11e7-8412-39c121d2bd2e.png)
+
 ### BiquadFilterNode
 
 表示一个简单的低频滤波器，可控制声调。它是一个 **AudioNode** 类型的音频处理模块。
@@ -157,5 +159,8 @@ controlFrequency(1000);
 
 ## 多个音频源
 
+![audiocontext3](https://user-images.githubusercontent.com/9698086/28865158-7aefae94-77a1-11e7-9130-be47e12ae400.png)
 
 ## 多个音频处理模块
+
+![audiocontext4](https://user-images.githubusercontent.com/9698086/28865159-7bfb07d4-77a1-11e7-8b3d-c2c3b0bc49ef.png)
