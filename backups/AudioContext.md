@@ -159,8 +159,12 @@ controlFrequency(1000);
 
 ## 多个音频源
 
+在一个音频上下文对象中，可以有多个音频处理通道，即多个音频源同时输出。
+
 ![audiocontext3](https://user-images.githubusercontent.com/9698086/28865158-7aefae94-77a1-11e7-9130-be47e12ae400.png)
 
 ## 多个音频处理模块
+
+一个音频源可以经过多个音频处理模块处理，音频处理模块叠加效果后输出。
 
 ![audiocontext4](https://user-images.githubusercontent.com/9698086/28865159-7bfb07d4-77a1-11e7-8b3d-c2c3b0bc49ef.png)
