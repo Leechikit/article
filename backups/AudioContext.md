@@ -94,6 +94,22 @@ let bufferSource = audioContext.createBufferSource();
 bufferSource.buffer = buffer;
 ```
 
+#### 方法
+
+**AudioBufferSourceNode.start([when][, offset][, duration])**
+
+开始播放。
+
+* when：延迟播放时间，单位为秒。
+* offset：定位音频到第几秒开始播放。
+* duration：从开始播放结束时长，当经过设置秒数后自动结束音频播放。
+
+**AudioBufferSourceNode.stop([when])**
+
+* when：延迟停止时间，单位为秒。
+
+停止播放，注意调用该方法后，无法再次调用 **AudioBufferSourceNode.start** 播放。
+
 ### AudioDestinationNode
 
 音频终点是通过 **AudioContext** 接口的 **destination** 属性访问的。音频终点继承 **AudioNode** 音频节点， 
@@ -110,7 +126,7 @@ let audioDestinationNode = audioContext.destination;
 bufferSource.connect(audioDestinationNode);
 ```
 
-[栗子]
+[戳我看源码](https://codepen.io/leechikit/pen/KvaJRp)
 
 ### GainNode
 
