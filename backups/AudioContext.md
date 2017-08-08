@@ -178,7 +178,7 @@ controlFrequency(1000);
 
 ## 多个音频源
 
-在一个音频上下文对象中，可以有多个音频处理通道，即多个音频源同时输出。各个音频处理通道内的操作是独立的，不影响其他音频通道。
+在一个音频上下文中，可以有多个音频处理通道，即多个音频源同时输出。各个音频处理通道内的操作是独立的，不影响其他音频通道。
 
 ![audiocontext3](https://user-images.githubusercontent.com/9698086/28865158-7aefae94-77a1-11e7-9130-be47e12ae400.png)
 
@@ -191,3 +191,9 @@ controlFrequency(1000);
 ![audiocontext4](https://user-images.githubusercontent.com/9698086/28865159-7bfb07d4-77a1-11e7-8b3d-c2c3b0bc49ef.png)
 
 [戳我看栗子](https://codepen.io/leechikit/pen/Nvpwrq)
+
+> 欢迎关注：[Leechikit](https://segmentfault.com/u/leechikit/articles)
+> 原文链接：[segmentfault.com](https://segmentfault.com/a/1190000010561222)
+>
+> 到此本文结束，欢迎提问和指正。
+> 写原创文章不易，若本文对你有帮助，请点赞、推荐和关注作者支持。
