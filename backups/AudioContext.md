@@ -1,41 +1,42 @@
-# HTML5音频API AduioContext
+# HTML5音频API Web Audio
 
-如下图，在 **AudioContext** 音频上下文中，把音频文件转成 **buffer** 格式，从音频源 **source** 开始，经过 **AuidoNode** 处理音频，最后到达 **destination** 输出音乐。这里形成了一个音频通道，每个模块通过 **connect** 方法链接并传送音频。
+此文介绍HTML5音频API的主要框架和工作流程，因为音频处理模块很多，所以只简单介绍几种音频处理模块，并通过例子来展示效果。后续会介绍利用HTML5音频API实现的项目，欢迎大家关注，敬请期待。
+
+HTML5音频API的主要框架和工作流程如下图，在 **AudioContext** 音频上下文中，把音频文件转成 **buffer** 格式，从音频源 **source** 开始，经过 **AuidoNode** 处理音频，最后到达 **destination** 输出音乐。这里形成了一个音频通道，每个模块通过 **connect** 方法链接并传送音频。
 
 ![audiocontext1](https://user-images.githubusercontent.com/9698086/28865131-6a6633fe-77a1-11e7-8ca1-4a67a994a97e.png)
 
 ## AudioContext
-创建一个 **AudioContext** 音频上下文：
+**AudioContext** 是一个音频上下文，像一个大工厂，所有的音频在这个音频上下文中处理。
 
 ```
 let audioContext = new(window.AudioContext || window.webkitAudioContext)();
 ```
+**AudioContext** 音频上下文提供了很多属性和方法，用于创建各种音频源和音频处理模块等，这里只介绍一部分，更多属性和方法可到[MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/AudioContext)查阅文档。
 
 ### 属性
 
 **AudioContext.destination**
 
-返回 AudioDestinationNode 对象，表示当前audio context中所有节点的最终节点，一般表示音频渲染设备。
+返回 **AudioDestinationNode** 对象，表示当前 **AudioContext** 中所有节点的最终节点，一般表示音频渲染设备。
 
 ### 方法
 
 **AudioContext.createBufferSource()**
 
-创建一个 AudioBufferSourceNode 对象, 他可以通过AudioBuffer对象来播放和处理包含在内的音频数据。
+创建一个 **AudioBufferSourceNode** 对象, 他可以通过 **AudioBuffer** 对象来播放和处理包含在内的音频数据。
 
 **AudioContext.createGain()**
 
-创建一个 GainNode,它可以控制音频的总音量。
+创建一个 **GainNode**,它可以控制音频的总音量。
 
 **AudioContext.createBiquadFilter()**
 
-创建一个 BiquadFilterNode，它代表代表一个双二阶滤波器，可以设置几种不同且常见滤波器类型：高通、低通、带通等。
+创建一个 **BiquadFilterNode**，它代表代表一个双二阶滤波器，可以设置几种不同且常见滤波器类型：高通、低通、带通等。
 
 **createOscillator()**
 
-创建一个 OscillatorNode, 它表示一个周期性波形，基本上来说创造了一个音调。
-
-更多属性和方法可到[MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/AudioContext)查阅文档。
+创建一个 **OscillatorNode**, 它表示一个周期性波形，基本上来说创造了一个音调。
 
 ## 音频转换成Buffer格式
 
@@ -68,7 +69,7 @@ let buffer = decodeAudioData(audioContext, './sounds/music.mp3');
 
 ## AudioNode
 
-音频节点 接口是一个音频处理模块。包括音频源，音频输出，中间处理模块。
+音频节点接口是一个音频处理模块。包括音频源，音频输出，中间处理模块。
 
 ## 方法
 
@@ -78,7 +79,7 @@ let buffer = decodeAudioData(audioContext, './sounds/music.mp3');
 
 **AudioNode.disconnect()**
 
-把 **AudioNode** 节点与其他节点断开链接。？？
+把 **AudioNode** 节点与其他节点断开链接。
 
 ### AudioBufferSourceNode
 
@@ -126,7 +127,7 @@ let audioDestinationNode = audioContext.destination;
 bufferSource.connect(audioDestinationNode);
 ```
 
-[戳我看源码](https://codepen.io/leechikit/pen/KvaJRp)
+[戳我看栗子](https://codepen.io/leechikit/pen/KvaJRp)
 
 ### GainNode
 
@@ -152,6 +153,8 @@ controlVolume(2);
 
 ![audiocontext2](https://user-images.githubusercontent.com/9698086/28865152-79aedac8-77a1-11e7-8412-39c121d2bd2e.png)
 
+[戳我看栗子](https://codepen.io/leechikit/pen/vJxewz)
+
 ### BiquadFilterNode
 
 表示一个简单的低频滤波器，可控制声调。它是一个 **AudioNode** 类型的音频处理模块。
@@ -175,12 +178,16 @@ controlFrequency(1000);
 
 ## 多个音频源
 
-在一个音频上下文对象中，可以有多个音频处理通道，即多个音频源同时输出。
+在一个音频上下文对象中，可以有多个音频处理通道，即多个音频源同时输出。各个音频处理通道内的操作是独立的，不影响其他音频通道。
 
 ![audiocontext3](https://user-images.githubusercontent.com/9698086/28865158-7aefae94-77a1-11e7-9130-be47e12ae400.png)
+
+[戳我看栗子](https://codepen.io/leechikit/pen/KvWyPV)
 
 ## 多个音频处理模块
 
 一个音频源可以经过多个音频处理模块处理，音频处理模块叠加效果后输出。
 
 ![audiocontext4](https://user-images.githubusercontent.com/9698086/28865159-7bfb07d4-77a1-11e7-8b3d-c2c3b0bc49ef.png)
+
+[戳我看栗子](https://codepen.io/leechikit/pen/Nvpwrq)
