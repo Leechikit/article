@@ -7,7 +7,7 @@
 * [传送门]
 * [传送门]
 
-[戳我看栗子](https://codepen.io/leechikit/pen/ZJyzZY)
+[戳我看栗子](https://codepen.io/leechikit/full/ZJyzZY)
 
 ## 使用HTML5音频API处理音乐
 
@@ -117,7 +117,77 @@ try {
 
 ## 使用HTML5拖放API选择音乐
 
-*createSongList.js*
+### 拖动音乐列表选项
 
+*createSongList.js*
+```
+/**
+ * dragstart
+ *
+ */
+function dragstartHandle() {
+	let img = document.createElement('img');
+	img.src = "../image/dragdefault.png";
+	songListEl.addEventListener('dragstart', (event) => {
+		/*setDragImage start*/
+		event.dataTransfer.setDragImage(img, 100, 100);
+		/*setDragImage end*/
+
+		let dataList = event.dataTransfer.items;
+		dataList.add(event.target.getAttribute('data-song'), "text/plain");
+		console.log("dragstart");
+	})
+}
+
+/**
+ * dragend
+ *
+ */
+function dragendHandle() {
+	songListEl.addEventListener("dragend", (event) => {
+		let dataList = event.dataTransfer.items;
+		dataList.clear();
+		console.log("dragend");
+	});
+}
+```
+
+### 放置音乐选项
+
+*createDisk.js*
+```
+/**
+ * dragover
+ *
+ */
+Disk.prototype.dragoverDiskHandle = function() {
+	this.diskEl.addEventListener("dragover", (event) => {
+		event.preventDefault();
+	});
+}
+
+/**
+ * drop
+ *
+ */
+Disk.prototype.dropDiskHandle = function() {
+	this.diskEl.addEventListener("drop", (event) => {
+		let dataList = event.dataTransfer.items;
+		for (let i = 0, len = dataList.length; i < len; i++) {
+			if (dataList[i].kind == "string" && dataList[i].type.match("^text/plain")) {
+				dataList[i].getAsString((name) => {
+					this.stopSound();
+					this.sound = new Source({
+						soundName: name,
+						loop: this.loop || true
+					});
+					this.setCover(name);
+				});
+			}
+		}
+	});
+}
+```
 
 ## 使用鼠标坐标转动磁碟
+
