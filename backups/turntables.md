@@ -119,6 +119,7 @@ try {
 
 ### 拖动音乐列表选项
 
+拖动音频选项时显示磁碟图片，并保存音频id。
 *createSongList.js*
 ```
 /**
@@ -154,6 +155,7 @@ function dragendHandle() {
 
 ### 放置音乐选项
 
+放置时获取音频id，从音频列表中获取封面和url，创建音频源实例。
 *createDisk.js*
 ```
 /**
