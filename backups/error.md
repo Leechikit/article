@@ -1,30 +1,11 @@
 # JavaScript错误处理
 
 
-当 JavaScript 引擎执行 JavaScript 代码时，会发生各种错误：
-可能是语法错误，通常是程序员造成的编码错误或错别字。
-可能是拼写错误或语言中缺少的功能（可能由于浏览器差异）。
-可能是由于来自服务器或用户的错误输出而导致的错误。
+当 **JavaScript** 引擎执行 **JavaScript** 代码时，有可能会发生各种错误，例如是语法错误，语言中缺少的功能，或由于来自服务器或用户的错误输出而导致的错误。
 
-而 Javascript 引擎是单线程的，因此一旦遇到错误，JavaScript 引擎通常会停止，阻塞后续代码的执行并抛出一个错误信息，因此我们很有必要管理好各种错误异常。
+而 **Javascript** 引擎是单线程的，因此一旦遇到错误，**Javascript** 引擎通常会停止执行，阻塞后续代码并抛出一个错误信息，因此对于可预见的错误，我们应该捕捉并正确展示给用户或开发者。
 
 ## Try / Catch
-
-**try...catch** 语句将能引发错误的代码放在try块中，并且对应一个响应，然后有异常被抛出。
-
-**try** 语句包含了由一个或者多个语句组成的 **try** 块, 和至少一个catch子句或者一个finally子句的其中一个，或者两个兼有， 下面是三种形式的try声明:
-
-* try...catch
-* try...finally
-* try...catch...finally
-
-try语句中放入可能会产生错误的语句或函数
-
-catch语句中包含要执行的语句，当try语句中抛出错误时，catch语句会捕捉到这个错误信息，并执行catch语句中的代码，如果在try块中没有异常抛出，这catch子句将会跳过。
-
-finally语句在try块和catch块之后执行。无论是否有异常抛出或着是否被捕获它总是执行。当在finally语句中抛出错误信息时会覆盖掉try语句中的错误信息。
-
-如果从finally块中返回一个值，那么这个值将会成为整个try-catch-finally的返回值，无论是否有return语句在try和catch中。这包括在catch块里抛出的异常。
 
 ```
 try {
@@ -38,17 +19,74 @@ try {
 }]
 ```
 
-## Throw
+**try** 语句包含了由一个或者多个语句组成的 **try** 块, 和至少一个 **catch** 子句或者一个 **finally** 子句的其中一个，或者两个兼有， 下面是三种形式的 **try** 声明:
 
-throw 语句用来抛出一个用户自定义的异常。当前函数的执行将被停止（throw之后的语句将不会执行），并且控制将被传递到调用堆栈中的第一个 catch 块。如果调用者函数中没有catch块，程序将会终止。
+* try...catch
+* try...finally
+* try...catch...finally
+
+**try** 语句中放入可能会产生错误的语句或函数
+
+**catch** 语句中包含要执行的语句，当 **try** 语句中抛出错误时，**catch** 语句会捕捉到这个错误信息，并执行 **catch** 语句中的代码，如果在 **try** 块中没有异常抛出，这 **catch** 子句将会跳过。
+
+**finally** 语句在 **try** 块和 **catch** 块之后执行。无论是否有异常抛出或着是否被捕获它总是执行。当在 **finally** 语句中抛出错误信息时会覆盖掉 **try** 语句中的错误信息。
+
+```
+try {
+    try {
+        throw new Error('can not find it1');
+    } finally {
+        throw new Error('can not find it2');
+    }
+} catch (err) {
+    console.log(err.message);
+}
+
+// can not find it2
+```
+
+如果从 **finally** 块中返回一个值，那么这个值将会成为整个 **try-catch-finally** 的返回值，无论是否有 **return** 语句在 **try** 和 **catch** 中。这包括在 **catch** 块里抛出的异常。
+
+```
+function test() {
+    try {
+        throw new Error('can not find it1');
+        return 1;
+    } catch (err) {
+        throw new Error('can not find it2');
+        return 2;
+    } finally {
+        return 3;
+    }
+}
+
+console.log(test()); // 3
+```
+
+## Throw
 
 ```
 throw expression; 
 ```
 
+**throw** 语句用来抛出一个用户自定义的错误。当前函数的执行将被停止（**throw** 之后的语句将不会执行），并且控制将被传递到调用堆栈中的第一个 **catch** 块。如果调用者函数中没有 **catch块**，程序将会终止。
+
+```
+try {
+    console.log('before throw error');
+    throw new Error('throw error');
+    console.log('after throw error');
+} catch (err) {
+    console.log(err.message);
+}
+
+// before throw error
+// throw error
+```
+
 ## Promise中的异常
 
-抛出错误
+**Promise** 中抛出错误的方法：
 ```
 new Promise((resolve,reject)=>{
 	reject();
@@ -66,31 +104,59 @@ Promise.reject();
 throw expression; 
 ```
 
-捕捉错误
+**Promise** 中捕捉错误的方法：
 
 ```
-.catch((exception)=>{
+promiseObj.then(undefined, (err)=>{
+	
+});
+```
+
+```
+promiseObj.catch((exception)=>{
 	catch_statements
 })
 ```
 
 ### Throw or Reject
 
-能捕获到的是“同步”错误
+无论是 **try...catch** 还是 **promise** 中的 **catch** 语句都能捕获到的是“同步”错误
 
-reject 是回调，而 throw 只是一个同步的语句，如果在另一个异步的上下文中抛出，在当前上下文中是无法捕获到的。
+**reject** 是回调，而 **throw** 只是一个同步的语句，如果在另一个异步的上下文中抛出，在当前上下文中是无法捕获到的。
 
-因此在 Promise 中使用 reject 抛出错误。否则 catch 会捕捉不到。
+因此在 **Promise** 中使用 **reject** 抛出错误。否则 **catch** 有可能会捕捉不到。
 
-在 JavaScript 函数中，只有 return / yield / throw 会中断函数的执行，其他的都无法阻止其运行到结束的。
+在 **JavaScript** 函数中，只有 **return** / **yield** / **throw** 会中断函数的执行，其他的都无法阻止其运行到结束的。
 
-在 resolve/reject 之前加上 return 能阻止往下继续运行。
+在 **resolve** / **reject** 之前加上 **return** 能阻止往下继续运行。
 
 ## Error对象
 
 **throw** 和 **Promise.reject** 可以抛出字符串类型的错误，而已可以抛出一个 **Error** 对象类型的错误。
 
 创建自己的错误构造函数
+
+```
+function MyError(message = 'Default Message') {
+    this.name = 'MyError';
+    this.message = message;
+    this.stack = (new Error()).stack;
+}
+MyError.prototype = Object.create(Error.prototype);
+MyError.prototype.constructor = MyError;
+
+export default MyError;
+```
+
+在代码中抛出自定义的错误类型并捕捉
+
+```
+try {
+	throw new MyError("some message");
+} catch(e){
+	console.log(e.name + ":" + e.message);
+}
+```
 
 ## 统一错误处理
 
