@@ -118,17 +118,50 @@ promiseObj.catch((exception)=>{
 })
 ```
 
+在 **JavaScript** 函数中，只有 **return** / **yield** / **throw** 会中断函数的执行，其他的都无法阻止其运行到结束的。
+
+在 **resolve** / **reject** 之前加上 **return** 能阻止往下继续运行。
+
+without `return`：
+```
+Promise.resolve()
+.then(() => {
+    console.log('before excute reject');
+    reject(new Error('throw error'));
+    console.log('after excute reject');
+})
+.catch((err) => {
+    console.log(err.message);
+});
+
+// before excute reject
+// throw error
+// after excute reject
+```
+
+use `return`：
+```
+Promise.resolve()
+.then(() => {
+    console.log('before excute reject');
+    return reject(new Error('throw error'));
+    console.log('after excute reject');
+})
+.catch((err) => {
+    console.log(err.message);
+});
+
+// before excute reject
+// throw error
+```
+
 ### Throw or Reject
 
-无论是 **try...catch** 还是 **promise** 中的 **catch** 语句都能捕获到的是“同步”错误
+无论是 **try...catch** 还是 **promise** 都能捕获到的是“同步”错误
 
 **reject** 是回调，而 **throw** 只是一个同步的语句，如果在另一个异步的上下文中抛出，在当前上下文中是无法捕获到的。
 
 因此在 **Promise** 中使用 **reject** 抛出错误。否则 **catch** 有可能会捕捉不到。
-
-在 **JavaScript** 函数中，只有 **return** / **yield** / **throw** 会中断函数的执行，其他的都无法阻止其运行到结束的。
-
-在 **resolve** / **reject** 之前加上 **return** 能阻止往下继续运行。
 
 ## Error对象
 
@@ -162,8 +195,54 @@ try {
 
 代码中抛出的异常，一种是要展示给用户，一种是展示给开发者。
 
-对于展示给用户的错误，一般使用 alert 或 toast 展示；对于展示给开发者的错误，一般输出到控制台。
+对于展示给用户的错误，一般使用 **alert** 或 **toast** 展示；对于展示给开发者的错误，一般输出到控制台。
 
 在一个函数或一个代码块中可以把抛出的错误统一捕捉起来，按照不同的错误类型以不同的方式展示，对于。
+
+*ensureError.js*
+```
+function EnsureError(message = 'Default Message') {
+    this.name = 'EnsureError';
+    this.message = message;
+    this.stack = (new Error()).stack;
+}
+EnsureError.prototype = Object.create(Error.prototype);
+EnsureError.prototype.constructor = EnsureError;
+
+export default EnsureError;
+```
+
+*toastError.js*
+```
+function ToastError(message = 'Default Message') {
+    this.name = 'ToastError';
+    this.message = message;
+    this.stack = (new Error()).stack;
+}
+ToastError.prototype = Object.create(Error.prototype);
+ToastError.prototype.constructor = ToastError;
+
+export default ToastError;
+```
+
+*errorHandler.js*
+```
+import EnsureError from './ensureError.js';
+import ToastError from './toastError.js';
+import EnsurePopup from './ensurePopup.js';
+import ToastPopup from './toastPopup.js';
+
+function errorHandler(err) {
+    if (err instanceof EnsureError) {
+        EnsurePopup(err.message);
+    } else if (err instanceof ToastError) {
+		ToastPopup(err.message);
+	}else {
+        console.error(err);
+    }
+}
+
+export default errorHandler;
+```
 
 ## Try / Catch 性能
