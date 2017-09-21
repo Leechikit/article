@@ -163,6 +163,36 @@ Promise.resolve()
 
 因此在 **Promise** 中使用 **reject** 抛出错误。否则 **catch** 有可能会捕捉不到。
 
+```
+Promise.resolve()
+.then(() => {
+    setTimeout(()=>{
+        throw new Error('throw error');
+    },0);
+})
+.catch((err) => {
+    console.log(err);
+});
+
+// Uncaught Error: throw error
+```
+
+```
+Promise.resolve()
+.then(() => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            reject(new Error('throw error'));
+        }, 0);
+    });
+})
+.catch((err) => {
+    console.log(err);
+});
+
+// Error: throw error
+```
+
 ## Error对象
 
 **throw** 和 **Promise.reject** 可以抛出字符串类型的错误，而已可以抛出一个 **Error** 对象类型的错误。
