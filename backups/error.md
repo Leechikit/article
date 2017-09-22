@@ -276,3 +276,41 @@ export default errorHandler;
 ```
 
 ## Try / Catch 性能
+
+在使用 **try..catch** 时，当 **try** 块或 **catch** 块中直接执行的代码较多时，建议把执行的代码放入函数中，在 **try** 块或 **catch** 执行这个函数。以下是测试数据：
+
+在 **try** 中直接执行循环100000次：
+```
+const TIMES = 100000;
+console.time('test try in');
+try {
+    let count = 0;
+    for (let i = 0; i < TIMES; i++) {
+        count += i;
+    }
+    console.log(count);
+} catch (error) {
+
+}
+console.timeEnd('test try in');
+```
+
+在 **try** 中调用函数循环100000次：
+```
+const TIMES = 100000;
+function logMessage() {
+    let count = 0;
+    for (let i = 0; i < TIMES; i++) {
+        count += i;
+    }
+    console.log(count);
+}
+
+console.time('test try out');
+try {
+    logMessage();
+} catch (error) {
+
+}
+console.timeEnd('test try out');
+```
