@@ -1,4 +1,4 @@
-# JavaScript错误处理
+# JavaScript的错误处理
 
 
 当 **JavaScript** 引擎执行 **JavaScript** 代码时，有可能会发生各种错误，例如是语法错误，语言中缺少的功能，或由于来自服务器或用户的错误输出而导致的错误。
@@ -200,13 +200,27 @@ Promise.resolve()
 创建自己的错误构造函数
 
 ```
-function MyError(message = 'Default Message') {
-    this.name = 'MyError';
-    this.message = message;
-    this.stack = (new Error()).stack;
+function MyError(message) {
+    var instance = new Error(message);
+    instance.name = 'MyError';
+    Object.setPrototypeOf(instance, Object.getPrototypeOf(this));
+    return instance;
 }
-MyError.prototype = Object.create(Error.prototype);
-MyError.prototype.constructor = MyError;
+
+MyError.prototype = Object.create(Error.prototype, {
+    constructor: {
+        value: MyError,
+        enumerable: false,
+        writable: true,
+        configurable: true
+    }
+});
+
+if (Object.setPrototypeOf) {
+    Object.setPrototypeOf(MyError, Error);
+} else {
+    MyError.__proto__ = Error;
+}
 
 export default MyError;
 ```
@@ -229,6 +243,7 @@ try {
 
 在一个函数或一个代码块中可以把抛出的错误统一捕捉起来，按照不同的错误类型以不同的方式展示，对于。
 
+需要点击确认的错误类型：
 *ensureError.js*
 ```
 function EnsureError(message = 'Default Message') {
@@ -242,6 +257,7 @@ EnsureError.prototype.constructor = EnsureError;
 export default EnsureError;
 ```
 
+弹窗提示的错误类型：
 *toastError.js*
 ```
 function ToastError(message = 'Default Message') {
@@ -255,10 +271,26 @@ ToastError.prototype.constructor = ToastError;
 export default ToastError;
 ```
 
+提示开发者的错误类型：
+*devError.js*
+```
+function DevError(message = 'Default Message') {
+    this.name = 'ToastError';
+    this.message = message;
+    this.stack = (new Error()).stack;
+}
+DevError.prototype = Object.create(Error.prototype);
+DevError.prototype.constructor = DevError;
+
+export default DevError;
+```
+
+错误处理器：
 *errorHandler.js*
 ```
 import EnsureError from './ensureError.js';
 import ToastError from './toastError.js';
+import DevError from './devError.js';
 import EnsurePopup from './ensurePopup.js';
 import ToastPopup from './toastPopup.js';
 
@@ -267,9 +299,11 @@ function errorHandler(err) {
         EnsurePopup(err.message);
     } else if (err instanceof ToastError) {
 		ToastPopup(err.message);
-	}else {
-        console.error(err);
-    }
+	}else if( err instanceof DevError){
+        DevError(err.message);
+    }else{
+		console.error(err.message);	
+	}
 }
 
 export default errorHandler;
