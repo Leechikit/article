@@ -239,6 +239,45 @@ try {
 }
 ```
 
+## window.onerror
+
+通过在window.onerror上定义一个事件监听函数，程序中其他代码产生的未被捕获的错误往往就会被window.onerror上面注册的监听函数捕获到。并且同时捕获到一些关于错误的信息。
+
+```
+window.onerror = function (message, source, lineno, colno, error) { }
+```
+
+* `message`：错误信息（字符串）
+* `source`：发生错误的脚本URL（字符串）
+* `lineno`：发生错误的行号（数字）
+* `colno`：发生错误的列号（数字）
+* `error`：Error对象（对象）
+
+注意：Safari 和 IE10还不支持在window.onerror的回调函数中使用第五个参数，也就是一个Error对象并带有一个追溯栈
+
+**try...catch** 不能够捕获异步代码中的错误，但是其将会把错误抛向全局然后 **window.onerror** 可以将其捕获。
+
+```
+try {
+    setTimeout(() => {
+        throw new Error("some message");
+    }, 0);
+} catch (err) {
+    console.log(err);
+}
+// Uncaught Error: some message
+```
+
+```
+window.onerror = (msg, url, line, col, err) => {
+    console.log(err);
+}
+setTimeout(() => {
+    throw new Error("some message");
+}, 0);
+// Error: some message
+```
+
 ## 统一错误处理
 
 代码中抛出的异常，一种是要展示给用户，一种是展示给开发者。
@@ -308,6 +347,10 @@ function errorHandler(err) {
     }else{
 		console.error(err.message);	
 	}
+}
+
+window.onerror = (msg, url, line, col, err) => {
+    errorHandler(err);
 }
 
 export default errorHandler;
