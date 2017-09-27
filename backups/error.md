@@ -157,7 +157,7 @@ Promise.resolve()
 
 ### Throw or Reject
 
-无论是 **try...catch** 还是 **promise** 都能捕获到的是“同步”错误
+无论是 **try/catch** 还是 **promise** 都能捕获到的是“同步”错误
 
 **reject** 是回调，而 **throw** 只是一个同步的语句，如果在另一个异步的上下文中抛出，在当前上下文中是无法捕获到的。
 
@@ -255,7 +255,7 @@ window.onerror = function (message, source, lineno, colno, error) { }
 
 注意：Safari 和 IE10还不支持在window.onerror的回调函数中使用第五个参数，也就是一个Error对象并带有一个追溯栈
 
-**try...catch** 不能够捕获异步代码中的错误，但是其将会把错误抛向全局然后 **window.onerror** 可以将其捕获。
+**try/catch** 不能够捕获异步代码中的错误，但是其将会把错误抛向全局然后 **window.onerror** 可以将其捕获。
 
 ```
 try {
@@ -277,6 +277,12 @@ setTimeout(() => {
 }, 0);
 // Error: some message
 ```
+
+## Try / Catch 性能
+
+有一个大家众所周知的反优化模式就是使用 **try/catch**。
+
+在V8（其他JS引擎也可能出现相同情况）函数中使用了 **try/catch** 语句不能够被V8编译器优化。参考[http://www.html5rocks.com/en/tutorials/speed/v8/](http://www.html5rocks.com/en/tutorials/speed/v8/)
 
 ## 统一错误处理
 
@@ -345,6 +351,7 @@ function errorHandler(err) {
 	}else if( err instanceof DevError){
         DevError(err.message);
     }else{
+		error.message += ` https://stackoverflow.com/questions?q=${encodeURI(error.message)}`
 		console.error(err.message);	
 	}
 }
@@ -354,44 +361,4 @@ window.onerror = (msg, url, line, col, err) => {
 }
 
 export default errorHandler;
-```
-
-## Try / Catch 性能
-
-在使用 **try..catch** 时，当 **try** 块或 **catch** 块中直接执行的代码较多时，建议把执行的代码放入函数中，在 **try** 块或 **catch** 执行这个函数。以下是测试数据：
-
-在 **try** 中直接执行循环100000次：
-```
-const TIMES = 100000;
-console.time('test try in');
-try {
-    let count = 0;
-    for (let i = 0; i < TIMES; i++) {
-        count += i;
-    }
-    console.log(count);
-} catch (error) {
-
-}
-console.timeEnd('test try in');
-```
-
-在 **try** 中调用函数循环100000次：
-```
-const TIMES = 100000;
-function logMessage() {
-    let count = 0;
-    for (let i = 0; i < TIMES; i++) {
-        count += i;
-    }
-    console.log(count);
-}
-
-console.time('test try out');
-try {
-    logMessage();
-} catch (error) {
-
-}
-console.timeEnd('test try out');
 ```
