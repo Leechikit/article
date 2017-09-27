@@ -257,6 +257,10 @@ window.onerror = function (message, source, lineno, colno, error) { }
 
 **try/catch** 不能够捕获异步代码中的错误，但是其将会把错误抛向全局然后 **window.onerror** 可以将其捕获。
 
+在Chrome中，window.onerror能够检测到从别的域引用的script文件中的错误，并且将这些错误标记为`Script error`。如果你不想处理这些从别的域引入的script文件，那么可以在程序中通过`Script error`标记将其过滤掉。然而，在Firefox、Safari或者IE11中，并不会引入跨域的JS错误，即使在Chrome中，如果使用try/catch将这些讨厌的代码包围，那么Chrome也不会再检测到这些跨域错误。
+
+在Chrome中，如果你想通过window.onerror来获取到完整的跨域错误信息，那么这些跨域资源必须提供合适的跨域头信息。
+
 ```
 try {
     setTimeout(() => {
@@ -277,6 +281,8 @@ setTimeout(() => {
 }, 0);
 // Error: some message
 ```
+
+
 
 ## Try / Catch 性能
 
