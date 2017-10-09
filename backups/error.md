@@ -1,9 +1,75 @@
 # JavaScript的错误处理
 
-
-当 **JavaScript** 引擎执行 **JavaScript** 代码时，有可能会发生各种错误，例如是语法错误，语言中缺少的功能，或由于来自服务器或用户的错误输出而导致的错误。
+当 **JavaScript** 引擎执行 **JavaScript** 代码时，有可能会发生各种错误，例如是语法错误，语言中缺少的功能，由于来自服务器或用户的错误输出而导致的错误。
 
 而 **Javascript** 引擎是单线程的，因此一旦遇到错误，**Javascript** 引擎通常会停止执行，阻塞后续代码并抛出一个错误信息，因此对于可预见的错误，我们应该捕捉并正确展示给用户或开发者。
+
+## Error对象
+
+**throw** 和 **Promise.reject()** 可以抛出字符串类型的错误，而且可以抛出一个 **Error** 对象类型的错误。
+
+一个 **Error** 对象类型的错误不仅包含一个错误信息，同时也包含一个追溯栈这样你就可以很容易通过追溯栈找到代码出错的行数了。
+
+所以推荐抛出 **Error** 对象类型的错误，而不是字符串类型的错误。
+
+创建自己的错误构造函数
+
+```
+function MyError(message) {
+    var instance = new Error(message);
+    instance.name = 'MyError';
+    Object.setPrototypeOf(instance, Object.getPrototypeOf(this));
+    return instance;
+}
+
+MyError.prototype = Object.create(Error.prototype, {
+    constructor: {
+        value: MyError,
+        enumerable: false,
+        writable: true,
+        configurable: true
+    }
+});
+
+if (Object.setPrototypeOf) {
+    Object.setPrototypeOf(MyError, Error);
+} else {
+    MyError.__proto__ = Error;
+}
+
+export default MyError;
+```
+
+在代码中抛出自定义的错误类型并捕捉
+
+```
+try {
+	throw new MyError("some message");
+} catch(e){
+	console.log(e.name + ":" + e.message);
+}
+```
+
+## Throw
+
+```
+throw expression; 
+```
+
+**throw** 语句用来抛出一个用户自定义的错误。当前函数的执行将被停止（**throw** 之后的语句将不会执行），并且控制将被传递到调用堆栈中的第一个 **catch** 块。如果调用者函数中没有 **catch块**，程序将会终止。
+
+```
+try {
+    console.log('before throw error');
+    throw new Error('throw error');
+    console.log('after throw error');
+} catch (err) {
+    console.log(err.message);
+}
+
+// before throw error
+// throw error
+```
 
 ## Try / Catch
 
@@ -19,7 +85,7 @@ try {
 }]
 ```
 
-**try** 语句包含了由一个或者多个语句组成的 **try** 块, 和至少一个 **catch** 子句或者一个 **finally** 子句的其中一个，或者两个兼有， 下面是三种形式的 **try** 声明:
+**try/catch** 主要用于捕捉错误。**try/catch** 语句包含了一个 **try** 块, 和至少有一个 **catch** 块或者一个 **finally** 块，下面是三种形式的 **try** 声明:
 
 * try...catch
 * try...finally
@@ -63,26 +129,57 @@ function test() {
 console.log(test()); // 3
 ```
 
-## Throw
+
+### Try / Catch 性能
+
+有一个大家众所周知的反优化模式就是使用 **try/catch**。
+
+在V8（其他JS引擎也可能出现相同情况）函数中使用了 **try/catch** 语句不能够被V8编译器优化。参考[http://www.html5rocks.com/en/tutorials/speed/v8/](http://www.html5rocks.com/en/tutorials/speed/v8/)
+
+
+
+## window.onerror
+
+通过在 **window.onerror** 上定义一个事件监听函数，程序中其他代码产生的未被捕获的错误往往就会被 **window.onerror** 上面注册的监听函数捕获到。并且同时捕获到一些关于错误的信息。
 
 ```
-throw expression; 
+window.onerror = function (message, source, lineno, colno, error) { }
 ```
 
-**throw** 语句用来抛出一个用户自定义的错误。当前函数的执行将被停止（**throw** 之后的语句将不会执行），并且控制将被传递到调用堆栈中的第一个 **catch** 块。如果调用者函数中没有 **catch块**，程序将会终止。
+* `message`：错误信息（字符串）
+* `source`：发生错误的脚本URL（字符串）
+* `lineno`：发生错误的行号（数字）
+* `colno`：发生错误的列号（数字）
+* `error`：Error对象（对象）
+
+注意：Safari 和 IE10 还不支持在 **window.onerror** 的回调函数中使用第五个参数，也就是一个 **Error** 对象并带有一个追溯栈
+
+**try/catch** 不能够捕获异步代码中的错误，但是其将会把错误抛向全局然后 **window.onerror** 可以将其捕获。
 
 ```
 try {
-    console.log('before throw error');
-    throw new Error('throw error');
-    console.log('after throw error');
+    setTimeout(() => {
+        throw new Error("some message");
+    }, 0);
 } catch (err) {
-    console.log(err.message);
+    console.log(err);
 }
-
-// before throw error
-// throw error
+// Uncaught Error: some message
 ```
+
+```
+window.onerror = (msg, url, line, col, err) => {
+    console.log(err);
+}
+setTimeout(() => {
+    throw new Error("some message");
+}, 0);
+// Error: some message
+```
+
+在Chrome中，**window.onerror** 能够检测到从别的域引用的script文件中的错误，并且将这些错误标记为`Script error`。如果你不想处理这些从别的域引入的script文件，那么可以在程序中通过`Script error`标记将其过滤掉。然而，在Firefox、Safari或者IE11中，并不会引入跨域的JS错误，即使在Chrome中，如果使用 **try/catch** 将这些讨厌的代码包围，那么Chrome也不会再检测到这些跨域错误。
+
+在Chrome中，如果你想通过 **window.onerror** 来获取到完整的跨域错误信息，那么这些跨域资源必须提供合适的跨域头信息。
 
 ## Promise中的异常
 
@@ -193,102 +290,42 @@ Promise.resolve()
 // Error: throw error
 ```
 
-## Error对象
+## window.onunhandledrejection
 
-**throw** 和 **Promise.reject** 可以抛出字符串类型的错误，而且可以抛出一个 **Error** 对象类型的错误。
-
-一个 **Error** 对象类型的错误不仅包含一个错误信息，同时也包含一个追溯栈这样你就可以很容易通过追溯栈找到代码出错的行数了。
-
-所以推荐抛出 **Error** 对象类型的错误，而不是字符串类型的错误。
-
-创建自己的错误构造函数
+`window.onunhandledrejection` 与 `window.onerror` 类似，在一个JavaScript Promise 被 **reject** 但是没有 **catch** 来捕捉这个 **reject**时触发。并且同时捕获到一些关于错误的信息。
 
 ```
-function MyError(message) {
-    var instance = new Error(message);
-    instance.name = 'MyError';
-    Object.setPrototypeOf(instance, Object.getPrototypeOf(this));
-    return instance;
-}
-
-MyError.prototype = Object.create(Error.prototype, {
-    constructor: {
-        value: MyError,
-        enumerable: false,
-        writable: true,
-        configurable: true
-    }
-});
-
-if (Object.setPrototypeOf) {
-    Object.setPrototypeOf(MyError, Error);
-} else {
-    MyError.__proto__ = Error;
-}
-
-export default MyError;
-```
-
-在代码中抛出自定义的错误类型并捕捉
-
-```
-try {
-	throw new MyError("some message");
-} catch(e){
-	console.log(e.name + ":" + e.message);
+window.onunhandledrejection = event => { 
+	console.log(event.reason);
 }
 ```
 
-## window.onerror
+`event`事件是 **PromiseRejectionEvent** 的实例，它有两个属性：
 
-通过在window.onerror上定义一个事件监听函数，程序中其他代码产生的未被捕获的错误往往就会被window.onerror上面注册的监听函数捕获到。并且同时捕获到一些关于错误的信息。
+* `event.promise`：被 rejected 的 JavaScript Promise
+* `event.reason`：一个值或 Object 表明为什么 promise 被 rejected，是 **Promise.reject()** 中的内容。
 
-```
-window.onerror = function (message, source, lineno, colno, error) { }
-```
+## window.rejectionhandled
 
-* `message`：错误信息（字符串）
-* `source`：发生错误的脚本URL（字符串）
-* `lineno`：发生错误的行号（数字）
-* `colno`：发生错误的列号（数字）
-* `error`：Error对象（对象）
-
-注意：Safari 和 IE10还不支持在window.onerror的回调函数中使用第五个参数，也就是一个Error对象并带有一个追溯栈
-
-**try/catch** 不能够捕获异步代码中的错误，但是其将会把错误抛向全局然后 **window.onerror** 可以将其捕获。
-
-在Chrome中，window.onerror能够检测到从别的域引用的script文件中的错误，并且将这些错误标记为`Script error`。如果你不想处理这些从别的域引入的script文件，那么可以在程序中通过`Script error`标记将其过滤掉。然而，在Firefox、Safari或者IE11中，并不会引入跨域的JS错误，即使在Chrome中，如果使用try/catch将这些讨厌的代码包围，那么Chrome也不会再检测到这些跨域错误。
-
-在Chrome中，如果你想通过window.onerror来获取到完整的跨域错误信息，那么这些跨域资源必须提供合适的跨域头信息。
+因为 **Promise** 可以延后调用 **catch** 方法，若在抛出 **reject** 时未调用 **catch** 进行捕捉，但稍后再次调用 **catch**，此时会触发 **rejectionhandled** 事件。
 
 ```
-try {
-    setTimeout(() => {
-        throw new Error("some message");
-    }, 0);
-} catch (err) {
-    console.log(err);
+window.onrejectionhandled = event =>
+{
+    console.log('rejection handled');
 }
-// Uncaught Error: some message
+
+let p = Promise.reject(new Error('throw error'));
+
+setTimeout(()=>{
+    p.catch(e=>{console.log(e)});
+},1000);
+
+// Uncaught (in promise) Error: throw error
+// 1秒后输出
+// Error: throw error
+// rejection handled
 ```
-
-```
-window.onerror = (msg, url, line, col, err) => {
-    console.log(err);
-}
-setTimeout(() => {
-    throw new Error("some message");
-}, 0);
-// Error: some message
-```
-
-
-
-## Try / Catch 性能
-
-有一个大家众所周知的反优化模式就是使用 **try/catch**。
-
-在V8（其他JS引擎也可能出现相同情况）函数中使用了 **try/catch** 语句不能够被V8编译器优化。参考[http://www.html5rocks.com/en/tutorials/speed/v8/](http://www.html5rocks.com/en/tutorials/speed/v8/)
 
 ## 统一错误处理
 
@@ -341,6 +378,7 @@ export default DevError;
 ```
 
 错误处理器：
+抛出普通错误时，可以带上 **stackoverflow** 上问题的列表，方便开发者查找原因。
 *errorHandler.js*
 ```
 import EnsureError from './ensureError.js';
@@ -365,6 +403,10 @@ function errorHandler(err) {
 window.onerror = (msg, url, line, col, err) => {
     errorHandler(err);
 }
+
+window.onunhandledrejection = event =>{
+    errorHandler(event.reason);
+};
 
 export default errorHandler;
 ```
