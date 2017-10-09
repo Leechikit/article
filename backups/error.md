@@ -56,7 +56,7 @@ try {
 throw expression; 
 ```
 
-**throw** 语句用来抛出一个用户自定义的错误。当前函数的执行将被停止（**throw** 之后的语句将不会执行），并且控制将被传递到调用堆栈中的第一个 **catch** 块。如果调用者函数中没有 **catch块**，程序将会终止。
+**throw** 语句用来抛出一个用户自定义的错误。当前函数的执行将被停止（**throw** 之后的语句将不会执行），并且控制将被传递到调用堆栈中的第一个 **catch** 块。如果调用者函数中没有 **catch** 块，程序将会终止。
 
 ```
 try {
@@ -91,11 +91,11 @@ try {
 * try...finally
 * try...catch...finally
 
-**try** 语句中放入可能会产生错误的语句或函数
+**try** 块中放入可能会产生错误的语句或函数
 
-**catch** 语句中包含要执行的语句，当 **try** 语句中抛出错误时，**catch** 语句会捕捉到这个错误信息，并执行 **catch** 语句中的代码，如果在 **try** 块中没有异常抛出，这 **catch** 子句将会跳过。
+**catch** 块中包含要执行的语句，当 **try** 块中抛出错误时，**catch** 块会捕捉到这个错误信息，并执行 **catch** 块中的代码，如果在 **try** 块中没有异常抛出，这 **catch** 块将会跳过。
 
-**finally** 语句在 **try** 块和 **catch** 块之后执行。无论是否有异常抛出或着是否被捕获它总是执行。当在 **finally** 语句中抛出错误信息时会覆盖掉 **try** 语句中的错误信息。
+**finally** 块在 **try** 块和 **catch** 块之后执行。无论是否有异常抛出或着是否被捕获它总是执行。当在 **finally** 块中抛出错误信息时会覆盖掉 **try** 块中的错误信息。
 
 ```
 try {
@@ -181,9 +181,10 @@ setTimeout(() => {
 
 在Chrome中，如果你想通过 **window.onerror** 来获取到完整的跨域错误信息，那么这些跨域资源必须提供合适的跨域头信息。
 
-## Promise中的异常
+## Promise中的错误
 
-**Promise** 中抛出错误的方法：
+### Promise中抛出错误
+
 ```
 new Promise((resolve,reject)=>{
 	reject();
@@ -201,11 +202,11 @@ Promise.reject();
 throw expression; 
 ```
 
-**Promise** 中捕捉错误的方法：
+### Promise中捕捉错误
 
 ```
 promiseObj.then(undefined, (err)=>{
-	
+	catch_statements
 });
 ```
 
