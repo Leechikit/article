@@ -1,1 +1,1 @@
-# __proto__与prototype
+# __proto__与prototype 
