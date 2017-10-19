@@ -4,3 +4,8 @@
 ```
 fung remote [reperoty]
 ```
+
+## 查看所有构建模板
+```
+fung list
+```
