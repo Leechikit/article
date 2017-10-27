@@ -1,4 +1,4 @@
-# 傻傻分不清的`__proto__`与`prototype`
+# 傻傻分不清的__proto__与prototype
 
 今天同事小英童鞋问了我一个问题：
 
@@ -21,7 +21,7 @@ foo.logName(); // Uncaught TypeError: Foo.combineName is not a function
 
 小英童鞋认为`Foo`的原型对象是`Foo.prototype`，所以`Foo`会继承`Foo.prototype`的属性，调用`Foo.combineName()`相当于调用`Foo.prototype.combineName()`，但结果`Foo.combineName()`不是一个方法。
 
-会造成这个问题的原因一定是因为小英童鞋弄混了原型和继承的一些原理，下面我们来整理一下原型和继承的相关原理，系统的找出问题的根本原因。
+会造成这个问题的原因一定是因为小英童鞋弄混了原型和继承的一些原理，下面我们来整理一下原型和继承的相关原理，找出问题的根本原因。
 
 ## `prototype`
 
@@ -31,7 +31,13 @@ foo.logName(); // Uncaught TypeError: Foo.combineName is not a function
 
 ## `__proto__`
 
-接下来我们说说继承，每个对象都有一个`__proto__`属性，这个属性是用来标识自己所继承的原型，原型链就是由`__proto__`属性链接而成的。
+接下来我们说说继承，每个对象都有一个`__proto__`属性，这个属性是用来标识自己所继承的原型。
+
+## 原型链
+
+**JavaScript** 可以通过`prototype`和`__proto__`在两个对象之间创建一个关联，使得一个对象就可以通过委托访问另一个对象的属性和函数。
+
+这样的一个关联就是原型链，一个由对象组成的有限对象链，用于实现继承和共享属性。
 
 ## 构造函数创建对象实例
 
@@ -57,6 +63,25 @@ var foo = createObject(Foo.prototype);
 
 至此我们了解了`prototype`和`__proto__`的作用，也了解使用构造函数创建对象实例时这两个属性的指向，以下使用一张图来总结一下如何通过`prototype`和`__proto__`实现原型链。
 
-从上图可看出构造函数`Foo`的`__proto__`属性指向`Function.prototype`，因此`Foo`继承的是`Function.prototype`的属性和方法。而实例`foo`的`__proto__`属性指向`Foo.prototype`，因此`foo`继承的是`Foo.prototype`。
+![proto](https://user-images.githubusercontent.com/9698086/32085949-a3399e04-bb04-11e7-9f4f-b4051108b5da.png)
 
-到这里，我们可以很简单的解答小英童鞋的问题了，在`Foo`的原型链上没有`combineName`方法，因此会抛出`Foo.combineName is not a function`的异常。要想使用`combineName`方法，可以这样`Foo.prototype.combineName`，或者这样`this.combineName`（`this`指向实例对象）。
+从上图我们可以找出`foo`对象和`Foo`函数的原型链：
+```
+foo.__proto__ = Foo.prototype;
+foo.__proto__.__proto__ = Foo.prototype.__proto__ = Object.prototype;
+foo.__proto__.__proto__.__proto__ = Foo.prototype.__proto__.__proto__ = Object.prototype.__proto__ = null;
+```
+
+![foo](https://user-images.githubusercontent.com/9698086/32086657-57c098a6-bb09-11e7-8789-6c4dce13df2a.png)
+
+```
+Foo.__proto__ = Function.prototype;
+Foo.__proto__.__proto__ = Function.prototype.__proto__;
+Foo.__proto__.__proto__.__proto__ = Function.prototype.__proto__.__proto__ = Object.prototype.__proto__ = null;
+```
+
+![class-foo](https://user-images.githubusercontent.com/9698086/32086658-57e8bdae-bb09-11e7-8479-2a769b4ffbc6.png)
+
+构造函数`Foo`的原型链上没有`Foo.prototype`，因此无法继承`Foo.prototype`上的属性和方法。而实例`foo`的原型链上有`Foo.prototype`，因此`foo`可以继承`Foo.prototype`上的属性和方法。
+
+到这里，我们可以很简单的解答小英童鞋的问题了，在`Foo`的原型链上没有`Foo.prototype`，无法继承`Foo.prototype`上的`combineName`方法，因此会抛出`Foo.combineName is not a function`的异常。要想使用`combineName`方法，可以这样`Foo.prototype.combineName`，或者这样`this.combineName`（`this`指向实例对象）。
