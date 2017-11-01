@@ -25,7 +25,9 @@ foo.logName(); // Uncaught TypeError: Foo.combineName is not a function
 
 ## `prototype`
 
-`prototype`是一个只有函数才有的属性。
+`prototype`是一个拥有 **[[Construct]]** 内部方法的对象才有的属性。
+
+例如函数，对象的方法，**ES6** 中的类。注意 **ES6** 中的箭头函数没有 **[[Construct]]** 方法，因此没有`prototype`这个属性，除非你为它添加一个。
 
 当创建函数时，**JavaScript** 会为这个函数自动添加`prototype`属性，这个属性指向的是一个原型对象`Functionname.prototype`。我们可以向这个原型对象添加属性或对象，甚至可以指向一个现有的对象。
 
