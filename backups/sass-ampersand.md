@@ -22,7 +22,6 @@
 	.content{
 		.list{
 			.item{
-				.pic{}
 				.message{
 					.title{}
 					.description{}
@@ -31,4 +30,11 @@
 		}
 	}
 }
+```
+
+编译出来后的 css 中选择器会变得很长。
+```
+.module .header .mark(){}
+.module .content .list .item .message .title(){}
+.module .content .list .item .message .description(){}
 ```
