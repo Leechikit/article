@@ -35,7 +35,7 @@ foo.logName(); // Uncaught TypeError: Foo.combineName is not a function
 
 接下来我们说说继承，每个对象都有一个`__proto__`属性，这个属性是用来标识自己所继承的原型。
 
-注意： **JavaScript** 中任意对象都有一个内置属性 **[[Prototype]]** ，在ES5之前没有标准的方法访问这个内置属性，但是大多数浏览器都支持通过`__proto__`来访问。
+注意： **JavaScript** 中任意对象都有一个内置属性 **[[Prototype]]** ，在ES5之前没有标准的方法访问这个内置属性，但是大多数浏览器都支持通过`__proto__`来访问。以下统一使用`__proto__`来访问**[[Prototype]]**，在实际开发中是不能这样访问的。
 
 ## 原型链
 
