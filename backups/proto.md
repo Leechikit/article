@@ -39,7 +39,7 @@ foo.logName(); // Uncaught TypeError: Foo.combineName is not a function
 
 ## 原型链
 
-**JavaScript** 可以通过`prototype`和`__proto__`在两个对象之间创建一个关联，使得一个对象就可以通过委托访问另一个对象的属性和函数。
+**JavaScript** 可以通过`prototype`和`__proto__`在两个对象之间创建一个关联，使得一个对象可以通过委托访问另一个对象的属性和函数。
 
 这样的一个关联就是原型链，一个由对象组成的有限对象链，用于实现继承和共享属性。
 
