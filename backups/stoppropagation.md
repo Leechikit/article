@@ -52,7 +52,7 @@ DOM标准处理事件时会按先捕捉传递后冒泡传递的顺序传递事�
 
 从顺序上讲，捕获式绑定的事件处理方法要优先于冒泡式绑定的事件处理方法，不过这只是针对元素作为父结点的时候，当元素是激活目标时，各种方式绑定的事件处理方法被执行顺序不确定的，是按照绑定顺序进行。
 
-![image](/https://user-images.githubusercontent.com/9698086/32093167-fca43796-bb2d-11e7-8b7b-a7dd28bcb385.png)
+![image](https://user-images.githubusercontent.com/9698086/32093167-fca43796-bb2d-11e7-8b7b-a7dd28bcb385.png)
 
 ## 事件委托
 
