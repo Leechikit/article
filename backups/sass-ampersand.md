@@ -21,6 +21,19 @@
 .blockName-elementName--modifierName {}
 ```
 
+可以发现因为类名要表示层级关系，因此很多类名都会有重复的部分，例如`blockName`和`elementName`，我们可以使用 **SASS** 的嵌套语法来提高我们的编写效率。
+
+```
+.blockName{
+	&-elementName{
+		&-modifierName{
+
+		}
+	}
+}
+```
+
+这样的编写风格更清楚地反应了层级关系，也减少了重复编写的代码。
 
 但当我们的HTML结构越来越多并且越来越深的时候，**SASS** 中的嵌套也会越来越深。
 ```
