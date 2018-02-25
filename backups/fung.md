@@ -1,10 +1,10 @@
 # Fung
 
-[![node][node]][node-url]
-[![downloads][downloads]][downloads-url]
-[![builds][builds]][builds-url]
-[![npm][npm]][npm-url]
-[![licenses][licenses]][licenses-url]
+如果你有以下需要，这篇文章将能帮助到你。
+
+* 需要快速初始化项目目录，目录结构较固定。
+* 每次初始化项目目录时需要修改项目名，作者名等信息。
+* 多个终端或多个人公用一套目录结构。
 
 ## 什么是 Fung?
 
